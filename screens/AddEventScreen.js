@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
+
+//import { Picker } from '@react-native-picker/picker';
+
+import RNPickerSelect from 'react-native-picker-select';
+
 import * as Yup from 'yup';
 
 import Colors from '../utils/colors';
@@ -7,67 +12,79 @@ import SafeView from '../components/SafeView';
 import Form from '../components/Forms/Form';
 import FormField from '../components/Forms/FormField';
 import FormButton from '../components/Forms/FormButton';
-import IconButton from '../components/IconButton';
-import { passwordReset } from '../components/Firebase/firebase';
 import FormErrorMessage from '../components/Forms/FormErrorMessage';
 import useStatusBar from '../hooks/useStatusBar';
 
 
-function handle(details, { navigation }){
-  console.log(called)
-  alert(JSON.stringify(details))
-  navigation.goBack();
-}
-
 const validationSchema = Yup.object().shape({
-  email: Yup.string()
-    .label('Email')
-    .email('Enter a valid email')
-    .required('Please enter a registered email')
+  reminder: Yup.string()
+    //.label('Email')
+    //.email('Enter a valid email')
+    .required('Please enter the reminder')
 });
+
+
+
+
 
 export default function ForgotPasswordScreen({ navigation }) {
   useStatusBar('light-content');
 
+  function update_print(values){
+    event_obj.reminder = values.reminder
+    console.log(event_obj)
+  }
+
   const [customError, setCustomError] = useState('');
+  const [location_val, setLocation] = useState('');
 
-  async function handlePasswordReset(values) {
-    const { email } = values;
-
-    try {
-      await passwordReset(email);
-      navigation.navigate('Welcome');
-    } catch (error) {
-      setCustomError(error.message);
-    }
+  let event_obj = {
+    reminder: '',
+    location: location_val
   }
 
   return (
     <SafeView style={styles.container}>
       <Form
-        initialValues={{ email: '' }}
+        initialValues={{ reminder: '' }}
+        initialValues={{ location: '' }}
         validationSchema={validationSchema}
-        onSubmit={values => handle(values)}
+        onSubmit={values => update_print(values)}
+
+
       >
         <FormField
-          name="email"
-          leftIcon="email"
-          placeholder="Enter email"
-          autoCapitalize="none"
+          name="reminder"
+          leftIcon="reminder"
+          placeholder="Enter reminder"
+          autoCapitalize="sentences"
           keyboardType="ascii-capable"
           textContentType="emailAddress"
           autoFocus={true}
         />
-        <FormButton title="Forgot Password" />
+        <FormField
+          name="location"
+          leftIcon="map"
+          placeholder= "Select location"
+          autoCapitalize="sentences"
+          keyboardType="ascii-capable"
+          textContentType="emailAddress"
+          autoFocus={true}
+          setFieldValue = { location_val }
+        />
+       <RNPickerSelect
+            onValueChange={(value) => setLocation(value)}
+            items={[
+                { label: 'Food', value: 'food' },
+                { label: 'Tools', value: 'tools' },
+            ]}
+        />
+
+
+
+        <FormButton title="Add reminder" />
         {<FormErrorMessage error={customError} visible={true} />}
       </Form>
-      <IconButton
-        style={styles.backButton}
-        iconName="keyboard-backspace"
-        color={Colors.white}
-        size={30}
-        onPress={() => navigation.goBack()}
-      />
     </SafeView>
   );
 }
@@ -75,7 +92,7 @@ export default function ForgotPasswordScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     padding: 15,
-    backgroundColor: Colors.mediumGrey
+    backgroundColor: Colors.white
   },
   backButton: {
     justifyContent: 'center',
