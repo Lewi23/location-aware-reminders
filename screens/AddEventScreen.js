@@ -20,8 +20,9 @@ const validationSchema = Yup.object().shape({
     .required('Please enter the reminder')
 });
 
-export default function AddEventScreen({ navigation }) {
+export default function AddEventScreen({ navigation: { goBack } }) {
   useStatusBar('light-content');
+
 
   async function addReminder(values){
 
@@ -31,6 +32,8 @@ export default function AddEventScreen({ navigation }) {
       reminder: event_obj.reminder,
       location: event_obj.location
     });
+
+    goBack();
   }
 
   const [customError, setCustomError] = useState('');
