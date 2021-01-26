@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
-
-//import { Picker } from '@react-native-picker/picker';
-
 import RNPickerSelect from 'react-native-picker-select';
-
+import { firebase_db } from '../components/Firebase/firebase'
+import { auth } from '../components/Firebase/firebase'
 import * as Yup from 'yup';
 
 import Colors from '../utils/colors';
@@ -16,23 +14,23 @@ import FormErrorMessage from '../components/Forms/FormErrorMessage';
 import useStatusBar from '../hooks/useStatusBar';
 
 
+
 const validationSchema = Yup.object().shape({
   reminder: Yup.string()
-    //.label('Email')
-    //.email('Enter a valid email')
     .required('Please enter the reminder')
 });
 
-
-
-
-
-export default function ForgotPasswordScreen({ navigation }) {
+export default function AddEventScreen({ navigation }) {
   useStatusBar('light-content');
 
-  function update_print(values){
+  async function addReminder(values){
+
     event_obj.reminder = values.reminder
-    console.log(event_obj)
+
+    await firebase_db.collection(auth.currentUser.uid).add({
+      reminder: event_obj.reminder,
+      location: event_obj.location
+    });
   }
 
   const [customError, setCustomError] = useState('');
@@ -49,8 +47,7 @@ export default function ForgotPasswordScreen({ navigation }) {
         initialValues={{ reminder: '' }}
         initialValues={{ location: '' }}
         validationSchema={validationSchema}
-        onSubmit={values => update_print(values)}
-
+        onSubmit={values => addReminder(values)}
 
       >
         <FormField
@@ -79,8 +76,6 @@ export default function ForgotPasswordScreen({ navigation }) {
                 { label: 'Tools', value: 'tools' },
             ]}
         />
-
-
 
         <FormButton title="Add reminder" />
         {<FormErrorMessage error={customError} visible={true} />}
