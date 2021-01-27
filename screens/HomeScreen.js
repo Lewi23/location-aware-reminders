@@ -1,48 +1,35 @@
 import React, { useState, useEffect  } from 'react';
-//import {Picker} from '@react-native-picker/picker';
-import { View, StyleSheet, Button, FlatList, Text } from 'react-native';
+import { View, StyleSheet, Button, FlatList, Text, ListItem } from 'react-native';
 
 import AppButton from '../components/AppButton';
 import useStatusBar from '../hooks/useStatusBar';
 import { logout } from '../components/Firebase/firebase';
 import { firebase_db } from '../components/Firebase/firebase'
 import { auth } from '../components/Firebase/firebase'
-import { out } from 'react-native/Libraries/Animated/src/Easing';
-
-
-
-
-
 
 
 export default function HomeScreen({ navigation }) {
+  useStatusBar('light-content');
 
+  const [ reminders, setReminders] = useState();
 
-  useStatusBar('dark-content');
+  useEffect(() => {
+    return firebase_db.collection(auth.currentUser.uid).onSnapshot(querySnapshot => {
+      const list = [];
+      querySnapshot.forEach(doc => {
+        const { location, reminder } = doc.data();
+        list.push({
+          id: doc.id,
+          location,
+          reminder,
+        });
+      });
 
-  const reminders_list = []
+      setReminders(list);
 
- 
-  function onResult(QuerySnapshot) {
-    QuerySnapshot.forEach(doc => {
-      const { location, reminder } = doc.data();
-      reminders_list.push({
-        id: doc.id,
-        location,
-        reminder
-      })
     });
-      console.log(reminders_list);
-  }
-  
-  function onError(error) {
-    console.error(error);
-  }
-  
-  firebase_db
-    .collection(auth.currentUser.uid)
-    .onSnapshot(onResult, onError);
-
+  }, []);
+ 
   async function handleSignOut() {
     try {
       await logout();
@@ -51,44 +38,31 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
-
-  const renderItem = ({ item }) => (
-    <Item title={item.reminder} />
-  )
-
-  const Item = ({ title }) => (
-    <View style={styles.item}>
-      <Text style={styles.title}>{title}</Text>
-    </View>
-  );
-  
-
-
   return (
     <View style={styles.container}>
       <Button title="Sign Out" onPress={handleSignOut} />
-      <AppButton title="Create Event" color="grey" onPress={() => navigation.navigate('AddEvent')}/>
-      {/* <FlatList 
-        style={{flex: 1}}
-        data={reminders}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <reminders {...item} />}
-      /> */}
-      
-      {/* <FlatList
-        data={reminders}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-      /> */}
+      <AppButton title="Create Event" color="black" onPress={() => navigation.navigate('AddEvent')}/>
+
+      <FlatList
+            data={reminders}
+            renderItem={({ item }) => {
+              return <Text style={styles.item}>{item.reminder}</Text>;
+            }}
+            keyExtractor={item => item.id}
+      />
 
     </View>
-
-
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1
-  }
+  },
+  item: {
+    backgroundColor: '#f9c2ff',
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16,
+  },
 });
