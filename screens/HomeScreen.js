@@ -20,16 +20,19 @@ export default function HomeScreen({ navigation }) {
 
   useStatusBar('dark-content');
 
-  const [ loading, setLoading ] = useState(true);
-  const [ reminders, setReminders ] = useState([]);
+  const reminders_list = []
 
  
   function onResult(QuerySnapshot) {
     QuerySnapshot.forEach(doc => {
       const { location, reminder } = doc.data();
-      console.log(location + " " + reminder)
-      
+      reminders_list.push({
+        id: doc.id,
+        location,
+        reminder
+      })
     });
+      console.log(reminders_list);
   }
   
   function onError(error) {
