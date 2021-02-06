@@ -30,7 +30,8 @@ export default function AddEventScreen({ navigation: { goBack } }) {
 
     await firebase_db.collection(auth.currentUser.uid).add({
       reminder: event_obj.reminder,
-      location: event_obj.location
+      location: event_obj.location,
+      completed: false
     });
 
     goBack();
