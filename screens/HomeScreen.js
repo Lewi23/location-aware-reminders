@@ -1,5 +1,7 @@
 import React, { useState, useEffect  } from 'react';
 import { View, StyleSheet, Button, FlatList, Text, ListItem } from 'react-native';
+import ActionButton from 'react-native-action-button';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import AppButton from '../components/AppButton';
 import useStatusBar from '../hooks/useStatusBar';
@@ -54,6 +56,12 @@ export default function HomeScreen({ navigation }) {
             keyExtractor={item => item.id}
       />
 
+        <ActionButton
+          size={80}
+          buttonColor="rgb(60, 179, 113)"
+          onPress={() => { navigation.navigate('AddEvent')}}
+        />
+            
     </View>
   );
 }
