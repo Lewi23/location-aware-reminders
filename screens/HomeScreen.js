@@ -17,12 +17,15 @@ export default function HomeScreen({ navigation }) {
     return firebase_db.collection(auth.currentUser.uid).onSnapshot(querySnapshot => {
       const list = [];
       querySnapshot.forEach(doc => {
-        const { location, reminder } = doc.data();
-        list.push({
-          id: doc.id,
-          location,
-          reminder,
-        });
+        const { location, reminder, completed } = doc.data();
+        if(list.completed == false){
+          list.push({
+            id: doc.id,
+            location,
+            reminder,
+            completed,
+          });
+        }
       });
 
       setReminders(list);
