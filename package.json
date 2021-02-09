@@ -20,6 +20,7 @@
     "expo-constants": "~9.3.3",
     "expo-font": "~8.4.0",
     "expo-location": "~10.0.0",
+    "expo-task-manager": "~8.6.0",
     "express": "^4.17.1",
     "firebase": "7.9.0",
     "formik": "2.1.4",
