@@ -14,7 +14,25 @@ export default function HomeScreen({ navigation }) {
   useStatusBar('light-content');
 
   const [ reminders, setReminders] = useState();
+  const [ nearbyPOIs, setNearbyPOIs] = useState();
 
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      
+      let result = await fetch('https://0186u6yf60.execute-api.eu-west-2.amazonaws.com/v1/check_location?lon=' + location["coords"]['longitude'] + '&lat=' + location["coords"]['latitude']);
+      let POIs = await result.json();
+      setNearbyPOIs(POIs);
+
+
+    })();
+  }, []);
   useEffect(() => {
     return firebase_db.collection(auth.currentUser.uid).onSnapshot(querySnapshot => {
       const list = [];
