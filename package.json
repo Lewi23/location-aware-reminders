@@ -32,6 +32,7 @@
     "react-leaflet": "^3.0.5",
     "react-native": "https://github.com/expo/react-native/archive/sdk-40.0.0.tar.gz",
     "react-native-action-button": "^2.8.5",
+    "react-native-background-geolocation": "^3.9.3",
     "react-native-gesture-handler": "~1.8.0",
     "react-native-hide-with-keyboard": "1.2.1",
     "react-native-keyboard-aware-scroll-view": "^0.9.3",
