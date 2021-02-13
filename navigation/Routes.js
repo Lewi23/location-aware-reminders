@@ -2,28 +2,26 @@ import React, { useContext, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+
+
 import { auth } from '../components/Firebase/firebase';
-
-
-import navigationTheme from './navigationTheme';
-
-
-import AuthStack from './AuthStack';
-// import AppStack from './AppStack';
-
-
-
 import { AuthUserContext } from './AuthUserProvider';
 import Spinner from '../components/Spinner';
 
+import navigationTheme from './navigationTheme';
 
-
-// Screens
+// Auth screens
 import AddEventScreen from '../screens/AddEventScreen';
 import completedRemindersScreen from '../screens/CompletedReminders';
 import HomeScreen from '../screens/HomeScreen';
 
+// Pre auth screens
+import WelcomeScreen from '../screens/WelcomeScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import LoginScreen from '../screens/LoginScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 
+// Build navigators
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -52,39 +50,33 @@ export default function Routes() {
     return <Spinner />;
   }
 
+  // If a user is logged in load the auth routing
   if (user){
-
-  } else {
-
+      return(
+        <NavigationContainer>
+          <Stack.Navigator>
+              <Stack.Screen name="Tabs" component={TabNavigation}/> 
+              <Stack.Screen name="Reminders" component={HomeScreen} />
+              <Stack.Screen name="AddEvent" component={AddEventScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      );
+  } else { // Return the pre auth routing
+    return (
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Welcome" headerMode="none">
+          <Stack.Screen name="Welcome" component={WelcomeScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
   }
-
-  return (
-    <NavigationContainer>
-      {/* {user ? <AppStack /> : <AuthStack />} */}
-     {/* <AppStack />  */}
-
-     <Stack.Navigator>
-        <Stack.Screen name="Tabs" component={TabNavigation}/> 
-        <Stack.Screen name="Reminders" component={HomeScreen} />
-        <Stack.Screen name="AddEvent" component={AddEventScreen} />
-    </Stack.Navigator>
-
-    </NavigationContainer>
-  );
 }
 
-
-function AppStack() {
-  return (
-      <Stack.Navigator>
-        <Stack.Screen name="Tabs" component={MainTabNavigator}/> 
-        <Stack.Screen name="Reminders" component={HomeScreen} />
-        <Stack.Screen name="AddEvent" component={AddEventScreen} />
-      </Stack.Navigator>
-  );
-};
-
-function TabNavigation() {
+// Tab navigation config
+const TabNavigation = () => {
   return (
     <Tab.Navigator>
       <Tab.Screen name="Reminders" component={HomeScreen} />
