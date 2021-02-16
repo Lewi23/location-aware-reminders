@@ -133,12 +133,6 @@ export default function HomeScreen({ navigation }) {
 
 
 
-
-
-
-  
-
-
   return (
   
 
@@ -160,13 +154,21 @@ export default function HomeScreen({ navigation }) {
         extraData={selectedId}
       />
 
+
+<MapView showsScale="true" style={styles.map} />
+
         <ActionButton
           size={70}
           buttonColor="rgb(60, 179, 113)"
           onPress={() => { navigation.navigate('AddEvent')}}
         />
 
-
+      <Modal isVisible={true}>
+        <View style={styles.modal}>
+        <Text>Hello World</Text>
+        {/* <MapView showsScale="true" style={styles.map} /> */}
+        </View>
+      </Modal>
   
     </View>
   );
@@ -187,4 +189,15 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: 'white'
   },
+  map: {
+    width: Dimensions.get('window').width * 0.75,
+    height: Dimensions.get('window').height / 2,
+  },
+  modal: {
+    flex: 0.7,
+    alignItems: 'center',
+    backgroundColor: 'white',    
+    padding: 100,
+    borderRadius:10,
+ },
 });
