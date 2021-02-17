@@ -1,10 +1,10 @@
 import React, { useState, useEffect  } from 'react';
-import { View, StyleSheet, Button, FlatList, Text, TouchableOpacity, TouchableHighlight } from 'react-native';
+import { View, StyleSheet, Button, FlatList, Text, TouchableOpacity, TouchableHighlight, Dimensions } from 'react-native';
 import * as Location from 'expo-location';
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal';
-import MapView from 'react-native-maps';
+import MapView, {Marker} from 'react-native-maps';
 
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -19,7 +19,7 @@ import { logout } from '../components/Firebase/firebase';
 import { firebase_db } from '../components/Firebase/firebase'
 import { auth } from '../components/Firebase/firebase'
 import colors from '../utils/colors';
-import { AppOwnership } from 'expo-constants';
+
 
 
 const Item = ({ item, onPress, style }) => (
@@ -41,6 +41,8 @@ export default function HomeScreen({ navigation }) {
   // Nearby POIs we have found based on reminders locations we are intrested in
   const [ nearbyPOIs, setNearbyPOIs ] = useState();
   const [ selectedId, setSelectedId ] = useState(null);
+  const [ curLon, setCurLon ] = useState();
+  const [ curLat, setCurLat ] = useState();
 
   //console.log(selectedId);
 
@@ -70,9 +72,14 @@ export default function HomeScreen({ navigation }) {
       }
 
       let location = await Location.getCurrentPositionAsync({});
+      setCurLon(location["coords"]['longitude']);
+      setCurLat(location["coords"]['latitude']);
+   
       
       let result = await fetch('https://0186u6yf60.execute-api.eu-west-2.amazonaws.com/v1/check_location?lon=' + location["coords"]['longitude'] + '&lat=' + location["coords"]['latitude']);
       let POIs = await result.json();
+
+      //console.log(POIs['body'][2]);
 
       const found_pois = [];
 
@@ -87,13 +94,39 @@ export default function HomeScreen({ navigation }) {
 
       // set state here (Object we used to build our map)
       setNearbyPOIs(found_pois);
-      console.log(nearbyPOIs);
+
+      
+      console.log(getCords(nearbyPOIs[0][4]));
+      
+
+
+    
+
+   
+
+     
+      // console.log(val);
+
+      //console.log(nearbyPOIs[0][4]);
+      //console.log(nearbyPOIs[0][2]);
 
     })();
   }, []);
 
-  
+  const handle_reminder = (element) => {
+    console.log(element);
+  }
 
+  const getCords = (POI) => {
+    const remove_point = POI.replace("POINT", "")
+    const remove_left_bracket = remove_point.replace("(", "")
+    const remove_right_bracket = remove_left_bracket.replace(")", "")
+    const coords = remove_right_bracket.split(" ");
+    return coords
+
+  }
+
+  
   // Populates the reminders state
   useEffect(() => {
     return firebase_db.collection(auth.currentUser.uid).onSnapshot(querySnapshot => {
@@ -131,7 +164,7 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
-
+    
 
   return (
   
@@ -155,7 +188,7 @@ export default function HomeScreen({ navigation }) {
       />
 
 
-<MapView showsScale="true" style={styles.map} />
+
 
         <ActionButton
           size={70}
@@ -163,10 +196,26 @@ export default function HomeScreen({ navigation }) {
           onPress={() => { navigation.navigate('AddEvent')}}
         />
 
-      <Modal isVisible={true}>
+      <Modal isVisible={true} >
         <View style={styles.modal}>
-        <Text>Hello World</Text>
-        {/* <MapView showsScale="true" style={styles.map} /> */}
+        
+        <MapView style={styles.map} showsUserLocation={true}
+    //     initialRegion={{
+    //   latitude: curLat,
+    //   longitude: curLon,
+    //   latitudeDelta: 0,
+    //   longitudeDelta: 0,
+    // }}
+        
+        >
+        <Marker coordinate = {{latitude: 56.025982,longitude:-3.815855}}
+         pinColor = {"purple"} // any color
+         title={"title"}
+         description={"description"}/>
+        </MapView>
+
+       
+
         </View>
       </Modal>
   
@@ -190,14 +239,18 @@ const styles = StyleSheet.create({
     color: 'white'
   },
   map: {
-    width: Dimensions.get('window').width * 0.75,
+    width: Dimensions.get('window').width * 0.9,
     height: Dimensions.get('window').height / 2,
+    borderRadius:10,
   },
   modal: {
     flex: 0.7,
-    alignItems: 'center',
     backgroundColor: 'white',    
-    padding: 100,
+    //padding: 10,
     borderRadius:10,
+    alignItems: 'center',
  },
+ modal_heading_text:{
+   fontSize:32,
+ }
 });
