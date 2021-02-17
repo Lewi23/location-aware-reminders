@@ -43,6 +43,7 @@ export default function HomeScreen({ navigation }) {
   const [ selectedId, setSelectedId ] = useState(null);
   const [ curLon, setCurLon ] = useState();
   const [ curLat, setCurLat ] = useState();
+  const [ coordsArray, setCoordsArray ] = useState();
 
   //console.log(selectedId);
 
@@ -83,11 +84,28 @@ export default function HomeScreen({ navigation }) {
 
       const found_pois = [];
 
+      var poi_markers = {
+        markers:[]
+      }
+
       POIs['body'].forEach(function(Element) {
         if(reminderLocations.includes(Element[2])){
           //console.log(Element);
           found_pois.push(Element);
           alert(Element);
+
+          const coords_res = getCords(Element[4]);
+          console.log(coords_res)
+          const obj = ({
+            coordinates: ({
+              latitude: Number(coords_res[1]),
+              longitude: Number(coords_res[0]),
+            }),
+            title: Element[0]
+          })
+
+          poi_markers.markers.push(obj)
+        
         }
       });
 
@@ -95,11 +113,20 @@ export default function HomeScreen({ navigation }) {
       // set state here (Object we used to build our map)
       setNearbyPOIs(found_pois);
 
-      
-      console.log(getCords(nearbyPOIs[0][4]));
+
+      console.log(poi_markers);
+
+      //setCoordsArray(getCords(nearbyPOIs[0][4])
+
       
 
 
+     
+  
+      setCoordsArray(poi_markers);
+      //console.log(coordsArray);
+      // console.log(coordsArray.markers);
+      
     
 
    
@@ -122,7 +149,8 @@ export default function HomeScreen({ navigation }) {
     const remove_left_bracket = remove_point.replace("(", "")
     const remove_right_bracket = remove_left_bracket.replace(")", "")
     const coords = remove_right_bracket.split(" ");
-    return coords
+    
+    return coords;
 
   }
 
@@ -208,10 +236,19 @@ export default function HomeScreen({ navigation }) {
     // }}
         
         >
-        <Marker coordinate = {{latitude: 56.025982,longitude:-3.815855}}
+        {/* <Marker coordinate = {{latitude: 56.025982,longitude:-3.815855}}
          pinColor = {"purple"} // any color
          title={"title"}
-         description={"description"}/>
+         description={"description"}/> */}
+
+          {coordsArray.markers.map(marker => (
+              <MapView.Marker 
+                coordinate={marker.coordinates}
+                title={marker.title}
+              />
+            ))} 
+
+            
         </MapView>
 
        
