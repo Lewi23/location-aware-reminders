@@ -63,9 +63,20 @@ export default function HomeScreen({ navigation }) {
 
 
 
+
+
+
   
   useEffect(() => {
     (async () => {
+
+
+      //setInterval(async () => {
+       
+      //   alert("hello");
+      
+      // }, 100);
+
       let { status } = await Location.requestPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');
@@ -80,69 +91,83 @@ export default function HomeScreen({ navigation }) {
       let result = await fetch('https://0186u6yf60.execute-api.eu-west-2.amazonaws.com/v1/check_location?lon=' + location["coords"]['longitude'] + '&lat=' + location["coords"]['latitude']);
       let POIs = await result.json();
 
-      //console.log(POIs['body'][2]);
-
-      const found_pois = [];
-
-      var poi_markers = {
-        markers:[]
-      }
-
-      POIs['body'].forEach(function(Element) {
-        if(reminderLocations.includes(Element[2])){
-          //console.log(Element);
-          found_pois.push(Element);
-          alert(Element);
-
-          const coords_res = getCords(Element[4]);
-          console.log(coords_res)
-          const obj = ({
-            coordinates: ({
-              latitude: Number(coords_res[1]),
-              longitude: Number(coords_res[0]),
-            }),
-            title: Element[0]
-          })
-
-          poi_markers.markers.push(obj)
-        
-        }
-      });
-
-
-      // set state here (Object we used to build our map)
-      setNearbyPOIs(found_pois);
-
-
-      console.log(poi_markers);
-
-      //setCoordsArray(getCords(nearbyPOIs[0][4])
-
       
 
+      let marks_temp = await asyncCall(POIs);
+      console.log(marks_temp);
 
-     
+      //const found_pois = [];
+
+      // var poi_markers = {
+      //   markers:[]
+      // }
+
+
+      // try {
+      //   POIs['body'].forEach(function(Element) {
+       
+      //     if(reminderLocations.includes(Element[2])){
+                
+      //       const coords_res = getCords(Element[4]);
+            
+      //       const obj = ({
+      //         coordinates: ({
+      //           latitude: Number(coords_res[1]),
+      //           longitude: Number(coords_res[0]),
+      //         }),
+      //         title: Element[0]
+      //       })
   
-      setCoordsArray(poi_markers);
-      //console.log(coordsArray);
-      // console.log(coordsArray.markers);
+      //       poi_markers.markers.push(obj)
+          
+      //     }
+      //   });
+      // } catch (error) {
+      //   console.log('error in loop')
+      //   console.log(error);
+      // }
+
+
       
-    
+      //console.log(poi_markers);
+      // setCoordsArray(JSON.stringify(poi_markers));
+      //setCoordsArray(JSON.stringify(marks_temp));
+      setCoordsArray(marks_temp);
 
-   
-
-     
-      // console.log(val);
-
-      //console.log(nearbyPOIs[0][4]);
-      //console.log(nearbyPOIs[0][2]);
+      // }, 100);
 
     })();
   }, []);
 
-  const handle_reminder = (element) => {
-    console.log(element);
-  }
+
+  async function asyncCall(POIs) {
+    var poi_markers = {
+        markers:[]
+      }
+
+      POIs['body'].forEach(function(Element) {
+       
+      //if(reminderLocations.includes(Element[2])){
+            
+        const coords_res = getCords(Element[4]);
+        
+        const obj = ({
+          coordinates: ({
+            latitude: Number(coords_res[1]),
+            longitude: Number(coords_res[0]),
+          }),
+          title: Element[0]
+        })
+
+        poi_markers.markers.push(obj)
+      
+     // }
+    });
+
+    return poi_markers;
+  };
+
+
 
   const getCords = (POI) => {
     const remove_point = POI.replace("POINT", "")
@@ -154,7 +179,8 @@ export default function HomeScreen({ navigation }) {
 
   }
 
-  
+
+
   // Populates the reminders state
   useEffect(() => {
     return firebase_db.collection(auth.currentUser.uid).onSnapshot(querySnapshot => {
@@ -175,90 +201,163 @@ export default function HomeScreen({ navigation }) {
 
       // Tracking users reminders 
       setReminders(reminder_list);
-      //console.log(reminders)
+      //console.log(reminder_list)
       // Tracking locations of reminders
       setReminderLocations(locations);
-      //console.log(locations);
+      console.log(locations);
     
 
     });
   }, []);
  
-  async function handleSignOut() {
-    try {
-      await logout();
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  // async function handleSignOut() {
+  //   try {
+  //     await logout();
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
-    
 
-  return (
+  if(coordsArray == undefined){
+    return (
   
 
     
-    <View style={styles.container}>
-
-   
-      
-      {/* <Button title="Sign Out" onPress={handleSignOut} /> */}
+      <View style={styles.container}>
+  
      
-
-      <FlatList
-        data={reminders}
-        // renderItem={({ item }) => {
-        //   return <Text style={styles.item}>{item.reminder + "\n" + item.location + "\n" + item.completed}</Text>;
-        // }}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        extraData={selectedId}
-      />
-
-
-
-
-        <ActionButton
-          size={70}
-          buttonColor="rgb(60, 179, 113)"
-          onPress={() => { navigation.navigate('AddEvent')}}
-        />
-
-      <Modal isVisible={true} >
-        <View style={styles.modal}>
         
-        <MapView style={styles.map} showsUserLocation={true}
-    //     initialRegion={{
-    //   latitude: curLat,
-    //   longitude: curLon,
-    //   latitudeDelta: 0,
-    //   longitudeDelta: 0,
-    // }}
-        
-        >
-        {/* <Marker coordinate = {{latitude: 56.025982,longitude:-3.815855}}
-         pinColor = {"purple"} // any color
-         title={"title"}
-         description={"description"}/> */}
-
-          {coordsArray.markers.map(marker => (
-              <MapView.Marker 
-                coordinate={marker.coordinates}
-                title={marker.title}
-              />
-            ))} 
-
-            
-        </MapView>
-
+        {/* <Button title="Sign Out" onPress={handleSignOut} /> */}
        
-
-        </View>
-      </Modal>
+      <Text>{curLat}</Text>
+       <Text>{curLon}</Text>
+       {/* <Text>{coordsArray}</Text> */}
   
-    </View>
-  );
-}
+        <FlatList
+          data={reminders}
+          // renderItem={({ item }) => {
+          //   return <Text style={styles.item}>{item.reminder + "\n" + item.location + "\n" + item.completed}</Text>;
+          // }}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          extraData={selectedId}
+        />
+  
+  
+  
+  
+          <ActionButton
+            size={70}
+            buttonColor="rgb(60, 179, 113)"
+            onPress={() => { navigation.navigate('AddEvent')}}
+          />
+  
+        <Modal isVisible={false} >
+          <View style={styles.modal}>
+          
+          <MapView style={styles.map} showsUserLocation={true}
+      //     initialRegion={{
+      //   latitude: curLat,
+      //   longitude: curLon,
+      //   latitudeDelta: 0,
+      //   longitudeDelta: 0,
+      // }}
+          
+          >
+          {/* <Marker coordinate = {{latitude: 56.025982,longitude:-3.815855}}
+           pinColor = {"purple"} // any color
+           title={"title"}
+           description={"description"}/> */}
+  
+            {/* {coordsArray.markers.map(marker => (
+                <MapView.Marker 
+                  coordinate={marker.coordinates}
+                  title={marker.title}
+                />
+              ))}  */}
+  
+              
+          </MapView>
+  
+         
+  
+          </View>
+        </Modal>
+    
+      </View>
+    );
+  } else if(coordsArray != undefined) {
+    return (
+  
+
+    
+      <View style={styles.container}>
+  
+     
+        
+        {/* <Button title="Sign Out" onPress={handleSignOut} /> */}
+       
+      <Text>{curLat}</Text>
+       <Text>{curLon}</Text>
+       {/* <Text>{coordsArray}</Text> */}
+  
+        <FlatList
+          data={reminders}
+          // renderItem={({ item }) => {
+          //   return <Text style={styles.item}>{item.reminder + "\n" + item.location + "\n" + item.completed}</Text>;
+          // }}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          extraData={selectedId}
+        />
+  
+  
+  
+  
+          <ActionButton
+            size={70}
+            buttonColor="rgb(60, 179, 113)"
+            onPress={() => { navigation.navigate('AddEvent')}}
+          />
+  
+        <Modal isVisible={true} >
+          <View style={styles.modal}>
+          
+          <MapView style={styles.map} showsUserLocation={true}
+          initialRegion={{
+        latitude: curLat,
+        longitude: curLon,
+        latitudeDelta: 0,
+        longitudeDelta: 0,
+      }}
+          
+          >
+          {/* <Marker coordinate = {{latitude: 56.025982,longitude:-3.815855}}
+           pinColor = {"purple"} // any color
+           title={"title"}
+           description={"description"}/> */}
+  
+            {coordsArray.markers.map(marker => (
+                <MapView.Marker 
+                  coordinate={marker.coordinates}
+                  title={marker.title}
+                />
+              ))} 
+  
+              
+          </MapView>
+  
+         
+  
+          </View>
+        </Modal>
+    
+      </View>
+    );
+  }
+  
+          }
 
 const styles = StyleSheet.create({
   container: {
