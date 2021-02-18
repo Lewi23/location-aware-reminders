@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal';
 import MapView, {Marker} from 'react-native-maps';
 
+import Spinner from '../components/Spinner';
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
@@ -220,78 +221,10 @@ export default function HomeScreen({ navigation }) {
 
 
   if(coordsArray == undefined){
-    return (
-  
-
-    
-      <View style={styles.container}>
-  
-     
-        
-        {/* <Button title="Sign Out" onPress={handleSignOut} /> */}
-       
-      <Text>{curLat}</Text>
-       <Text>{curLon}</Text>
-       {/* <Text>{coordsArray}</Text> */}
-  
-        <FlatList
-          data={reminders}
-          // renderItem={({ item }) => {
-          //   return <Text style={styles.item}>{item.reminder + "\n" + item.location + "\n" + item.completed}</Text>;
-          // }}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-          extraData={selectedId}
-        />
-  
-  
-  
-  
-          <ActionButton
-            size={70}
-            buttonColor="rgb(60, 179, 113)"
-            onPress={() => { navigation.navigate('AddEvent')}}
-          />
-  
-        <Modal isVisible={false} >
-          <View style={styles.modal}>
-          
-          <MapView style={styles.map} showsUserLocation={true}
-      //     initialRegion={{
-      //   latitude: curLat,
-      //   longitude: curLon,
-      //   latitudeDelta: 0,
-      //   longitudeDelta: 0,
-      // }}
-          
-          >
-          {/* <Marker coordinate = {{latitude: 56.025982,longitude:-3.815855}}
-           pinColor = {"purple"} // any color
-           title={"title"}
-           description={"description"}/> */}
-  
-            {/* {coordsArray.markers.map(marker => (
-                <MapView.Marker 
-                  coordinate={marker.coordinates}
-                  title={marker.title}
-                />
-              ))}  */}
-  
-              
-          </MapView>
-  
-         
-  
-          </View>
-        </Modal>
-    
-      </View>
-    );
+    return <Spinner />;
   } else if(coordsArray != undefined) {
     return (
   
-
-    
       <View style={styles.container}>
   
      
