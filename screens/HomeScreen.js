@@ -1,4 +1,4 @@
-import React, { useState, useEffect  } from 'react';
+import React, { useState, useEffect, PureComponent  } from 'react';
 import { View, StyleSheet, Button, FlatList, Text, TouchableOpacity, TouchableHighlight, Dimensions } from 'react-native';
 import * as Location from 'expo-location';
 import ActionButton from 'react-native-action-button';
@@ -7,19 +7,13 @@ import Modal from 'react-native-modal';
 import MapView, {Marker} from 'react-native-maps';
 
 import Spinner from '../components/Spinner';
-
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-
-
-import completedReminders from './CompletedReminders';
-
-
 import AppButton from '../components/AppButton';
 import useStatusBar from '../hooks/useStatusBar';
 import { logout } from '../components/Firebase/firebase';
 import { firebase_db } from '../components/Firebase/firebase'
 import { auth } from '../components/Firebase/firebase'
 import colors from '../utils/colors';
+
 
 
 
@@ -39,50 +33,51 @@ export default function HomeScreen({ navigation }) {
   const [ reminders, setReminders ] = useState();
   // Current locations we are looking out for based on the reminders created 
   const [ reminderLocations, setReminderLocations ] = useState();
-  // Nearby POIs we have found based on reminders locations we are intrested in
-  const [ nearbyPOIs, setNearbyPOIs ] = useState();
-  const [ selectedId, setSelectedId ] = useState(null);
+  // Tracking users current position
   const [ curLon, setCurLon ] = useState();
   const [ curLat, setCurLat ] = useState();
-  const [ coordsArray, setCoordsArray ] = useState();
+
+  
+
+  
+  const [ selectedId, setSelectedId ] = useState(null);
+  
+  const [ markersArray, setMarkersArray ] = useState();
+  const [ modalVisible, setModalVisible ] = useState(false);
+  const [ reminderType , setReminderType ] = useState();
 
   //console.log(selectedId);
 
+  // Render flat list items
   const renderItem = ({ item }) => {
-
     const backgroundColor = item.id === selectedId ? "#6e3b6e" : "#f9c2ff";
-
     return (
       <Item
         item={item}
         onPress={() => setSelectedId(item.id)}
         style={{ backgroundColor }}
-      
       />
     );
   };
 
-
-
-
-
-
-  
+  // Get users location
   useEffect(() => {
     (async () => {
-
-
-      //setInterval(async () => {
-       
-      //   alert("hello");
-      
-      // }, 100);
-
       let { status } = await Location.requestPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');
         return;
-      }
+      }    
+    })
+  })
+
+  // Doing the location checks / API calls
+  useEffect(() => {
+    (async () => {
+
+
+      // setInterval(async () => {
+        // if(modalVisible) return;
 
       let location = await Location.getCurrentPositionAsync({});
       setCurLon(location["coords"]['longitude']);
@@ -92,80 +87,81 @@ export default function HomeScreen({ navigation }) {
       let result = await fetch('https://0186u6yf60.execute-api.eu-west-2.amazonaws.com/v1/check_location?lon=' + location["coords"]['longitude'] + '&lat=' + location["coords"]['latitude']);
       let POIs = await result.json();
 
-      
-
-      let marks_temp = await asyncCall(POIs);
-      console.log(marks_temp);
-
-      //const found_pois = [];
-
-      // var poi_markers = {
-      //   markers:[]
-      // }
-
-
-      // try {
-      //   POIs['body'].forEach(function(Element) {
-       
-      //     if(reminderLocations.includes(Element[2])){
-                
-      //       const coords_res = getCords(Element[4]);
-            
-      //       const obj = ({
-      //         coordinates: ({
-      //           latitude: Number(coords_res[1]),
-      //           longitude: Number(coords_res[0]),
-      //         }),
-      //         title: Element[0]
-      //       })
   
-      //       poi_markers.markers.push(obj)
-          
-      //     }
-      //   });
-      // } catch (error) {
-      //   console.log('error in loop')
-      //   console.log(error);
-      // }
+      let reminderTypes = await getReminderTypes();
+      const reminders = [];
+
+      reminderTypes.forEach(doc => {
+        const { location } = doc.data()
+        reminders.push(location);
+      });
+
+      console.log('Reminders:');
+      console.log(reminders);
+      setReminderType(reminders);
 
 
+      let mapMarkers = await buildMapMarkers(POIs);
+      setMarkersArray(mapMarkers);
+
+
+      console.log('Markers:')
+      console.log(markersArray);
+      console.log('Markers count:' + mapMarkers.markers.length);
       
-      //console.log(poi_markers);
-      // setCoordsArray(JSON.stringify(poi_markers));
-      //setCoordsArray(JSON.stringify(marks_temp));
-      setCoordsArray(marks_temp);
 
-      // }, 100);
+
+      // if(mapMarkers.markers.length > 1){
+      //   setModalVisible(true);
+      // } else {
+      //   setModalVisible(false);
+      // }
+      
+      // // }, 3000);
 
     })();
   }, []);
 
 
-  async function asyncCall(POIs) {
+  async function getReminderTypes() {
+    const locations = await firebase_db
+    .collection(auth.currentUser.uid)
+    .get();
+
+    return locations; 
+  }
+
+ 
+  async function buildMapMarkers(POIs) {
     var poi_markers = {
         markers:[]
       }
 
-      POIs['body'].forEach(function(Element) {
-       
-      //if(reminderLocations.includes(Element[2])){
+      if(reminderType != undefined){
+        POIs['body'].forEach(function(Element) {
+          
+          if(reminderType.includes(Element[2])){
+                
+            const coords_res = getCords(Element[4]);
             
-        const coords_res = getCords(Element[4]);
-        
-        const obj = ({
-          coordinates: ({
-            latitude: Number(coords_res[1]),
-            longitude: Number(coords_res[0]),
-          }),
-          title: Element[0]
-        })
-
-        poi_markers.markers.push(obj)
+            const obj = ({
+              coordinates: ({
+                latitude: Number(coords_res[1]),
+                longitude: Number(coords_res[0]),
+              }),
+              title: Element[0]
+            })
+    
+            poi_markers.markers.push(obj)
+          
+       }
+        });
+      }
       
-     // }
-    });
+        return poi_markers;
+      
 
-    return poi_markers;
+      
   };
 
 
@@ -200,12 +196,14 @@ export default function HomeScreen({ navigation }) {
         }
       });
 
+      //console.log(reminder_list);
       // Tracking users reminders 
       setReminders(reminder_list);
+
       //console.log(reminder_list)
       // Tracking locations of reminders
-      setReminderLocations(locations);
-      console.log(locations);
+      //setReminderLocations(locations);
+      //console.log(locations);
     
 
     });
@@ -220,74 +218,75 @@ export default function HomeScreen({ navigation }) {
   // }
 
 
-  if(coordsArray == undefined){
+  if(markersArray == undefined){
     return <Spinner />;
-  } else if(coordsArray != undefined) {
-    return (
-  
-      <View style={styles.container}>
-  
-     
-        
-        {/* <Button title="Sign Out" onPress={handleSignOut} /> */}
-       
-      <Text>{curLat}</Text>
-       <Text>{curLon}</Text>
-       {/* <Text>{coordsArray}</Text> */}
-  
-        <FlatList
-          data={reminders}
-          // renderItem={({ item }) => {
-          //   return <Text style={styles.item}>{item.reminder + "\n" + item.location + "\n" + item.completed}</Text>;
-          // }}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-          extraData={selectedId}
-        />
-  
-  
-  
-  
-          <ActionButton
-            size={70}
-            buttonColor="rgb(60, 179, 113)"
-            onPress={() => { navigation.navigate('AddEvent')}}
-          />
-  
-        <Modal isVisible={true} >
-          <View style={styles.modal}>
-          
-          <MapView style={styles.map} showsUserLocation={true}
-          initialRegion={{
-        latitude: curLat,
-        longitude: curLon,
-        latitudeDelta: 0,
-        longitudeDelta: 0,
-      }}
-          
-          >
-          {/* <Marker coordinate = {{latitude: 56.025982,longitude:-3.815855}}
-           pinColor = {"purple"} // any color
-           title={"title"}
-           description={"description"}/> */}
-  
-            {coordsArray.markers.map(marker => (
-                <MapView.Marker 
-                  coordinate={marker.coordinates}
-                  title={marker.title}
-                />
-              ))} 
-  
-              
-          </MapView>
-  
-         
-  
-          </View>
-        </Modal>
+  } else if(markersArray != undefined) {
     
-      </View>
-    );
+      return (
+  
+        <View style={styles.container}>
+    
+       
+          
+          {/* <Button title="Sign Out" onPress={handleSignOut} /> */}
+         
+        <Text>{curLat}</Text>
+         <Text>{curLon}</Text>
+         {/* <Text>{markersArray}</Text> */}
+    
+          <FlatList
+            data={reminders}
+            // renderItem={({ item }) => {
+            //   return <Text style={styles.item}>{item.reminder + "\n" + item.location + "\n" + item.completed}</Text>;
+            // }}
+            renderItem={renderItem}
+            keyExtractor={item => item.id}
+            extraData={selectedId}
+          />
+
+
+<Modal isVisible={true} >
+            <View style={styles.modal}>
+            
+            <MapView style={styles.map} showsUserLocation={true}
+            initialRegion={{
+          latitude: curLat,
+          longitude: curLon,
+          latitudeDelta: 0,
+          longitudeDelta: 0,
+        }}
+        
+            
+            >
+            {/* <Marker coordinate = {{latitude: 56.025982,longitude:-3.815855}}
+             pinColor = {"purple"} // any color
+             title={"title"}
+             description={"description"}/> */}
+    
+              {markersArray.markers.map(marker => (
+                  <MapView.Marker 
+                    coordinate={marker.coordinates}
+                    title={marker.title}
+                  />
+                ))} 
+    
+                
+            </MapView>
+    
+           <Button title="close" ></Button>
+    
+            </View>
+          </Modal>
+
+    
+            <ActionButton
+              size={70}
+              buttonColor="rgb(60, 179, 113)"
+              onPress={() => { navigation.navigate('AddEvent')}}
+            />
+        </View>
+      );
+    
   }
   
           }
