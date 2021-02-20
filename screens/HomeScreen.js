@@ -45,6 +45,7 @@ export default function HomeScreen({ navigation }) {
   const [ markersArray, setMarkersArray ] = useState();
   const [ modalVisible, setModalVisible ] = useState(false);
   const [ reminderType , setReminderType ] = useState();
+  const [ loop, setLoop] = useState(true);
 
   //console.log(selectedId);
 
@@ -75,8 +76,8 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     (async () => {
 
-
-      // setInterval(async () => {
+      
+      setInterval(async () => {
         // if(modalVisible) return;
 
       let location = await Location.getCurrentPositionAsync({});
@@ -89,25 +90,22 @@ export default function HomeScreen({ navigation }) {
 
   
       let reminderTypes = await getReminderTypes();
-      const reminders = [];
-
-      reminderTypes.forEach(doc => {
-        const { location } = doc.data()
-        reminders.push(location);
-      });
-
-      console.log('Reminders:');
-      console.log(reminders);
-      setReminderType(reminders);
+      setReminderType(reminderTypes);
 
 
-      let mapMarkers = await buildMapMarkers(POIs);
+      
+      //setReminderType(reminderTypes);
+
+
+      let mapMarkers = await buildMapMarkers(POIs, reminderTypes);
       setMarkersArray(mapMarkers);
 
+      console.log(mapMarkers);
 
-      console.log('Markers:')
-      console.log(markersArray);
-      console.log('Markers count:' + mapMarkers.markers.length);
+
+      // console.log('Markers:')
+      // console.log(markersArray);
+      // console.log('Markers count:' + mapMarkers.markers.length);
       
 
 
@@ -117,7 +115,7 @@ export default function HomeScreen({ navigation }) {
       //   setModalVisible(false);
       // }
       
-      // // }, 3000);
+      }, 1000);
 
     })();
   }, []);
@@ -128,19 +126,33 @@ export default function HomeScreen({ navigation }) {
     .collection(auth.currentUser.uid)
     .get();
 
-    return locations; 
+    const reminders = [];
+
+    locations.forEach(doc => {
+      const { location } = doc.data()
+      reminders.push(location);
+    });
+
+    return reminders; 
   }
 
+  
+
  
-  async function buildMapMarkers(POIs) {
+  async function buildMapMarkers(POIs, reminderTypes) {
     var poi_markers = {
         markers:[]
       }
 
-      if(reminderType != undefined){
+      console.log("inside" + reminderTypes);
+
+      //console.log("poi markers called");
+      //if(reminderType != undefined){
+
+
         POIs['body'].forEach(function(Element) {
           
-          if(reminderType.includes(Element[2])){
+          if(reminderTypes.includes(Element[2])){
                 
             const coords_res = getCords(Element[4]);
             
@@ -152,15 +164,17 @@ export default function HomeScreen({ navigation }) {
               title: Element[0]
             })
     
-            poi_markers.markers.push(obj)
+            poi_markers.markers.push(obj);
           
        }
-        });
-      }
-      
-        return poi_markers;
-      
 
+       
+
+        });
+      //}
+       
+      
+      return poi_markers;
       
   };
 
@@ -199,7 +213,8 @@ export default function HomeScreen({ navigation }) {
       //console.log(reminder_list);
       // Tracking users reminders 
       setReminders(reminder_list);
-
+      //console.log(reminders);
+      
       //console.log(reminder_list)
       // Tracking locations of reminders
       //setReminderLocations(locations);
@@ -218,15 +233,59 @@ export default function HomeScreen({ navigation }) {
   // }
 
 
-  if(markersArray == undefined){
-    return <Spinner />;
-  } else if(markersArray != undefined) {
+  // if(markersArray == undefined){
+  //   return <Spinner />;
+  // } else if(markersArray != undefined) {
+
+  
+
+  function MapPopup(){
+    if(markersArray == undefined) {return false}
+    //console.log("here")
+    //console.log(markersArray.markers.length);
+
+    if(markersArray.markers.length == 0) {return false}
+
     
+
+      return(
+          <Modal isVisible={true} >
+            <View style={styles.modal}>
+            
+            <MapView style={styles.map} showsUserLocation={true}
+              initialRegion={{
+                latitude: curLat,
+                longitude: curLon,
+                latitudeDelta: 0,
+                longitudeDelta: 0,
+              }}
+            >
+            {markersArray.markers.map(marker => (
+              <MapView.Marker 
+                coordinate={marker.coordinates}
+                title={marker.title}
+              />
+            ))} 
+    
+            </MapView>
+    
+           <Button title="close" ></Button>
+    
+            </View>
+          </Modal> 
+      );
+    
+  }
+
+
+  
+
       return (
   
         <View style={styles.container}>
     
-       
+          <Text>{JSON.stringify(reminderType)}</Text>
+          <Text>{JSON.stringify(markersArray)}</Text>
           
           {/* <Button title="Sign Out" onPress={handleSignOut} /> */}
          
@@ -244,39 +303,11 @@ export default function HomeScreen({ navigation }) {
             extraData={selectedId}
           />
 
-
-<Modal isVisible={true} >
-            <View style={styles.modal}>
-            
-            <MapView style={styles.map} showsUserLocation={true}
-            initialRegion={{
-          latitude: curLat,
-          longitude: curLon,
-          latitudeDelta: 0,
-          longitudeDelta: 0,
-        }}
+          <MapPopup/>
         
-            
-            >
-            {/* <Marker coordinate = {{latitude: 56.025982,longitude:-3.815855}}
-             pinColor = {"purple"} // any color
-             title={"title"}
-             description={"description"}/> */}
-    
-              {markersArray.markers.map(marker => (
-                  <MapView.Marker 
-                    coordinate={marker.coordinates}
-                    title={marker.title}
-                  />
-                ))} 
-    
-                
-            </MapView>
-    
-           <Button title="close" ></Button>
-    
-            </View>
-          </Modal>
+
+
+         
 
     
             <ActionButton
@@ -286,10 +317,8 @@ export default function HomeScreen({ navigation }) {
             />
         </View>
       );
-    
-  }
-  
-          }
+}
+
 
 const styles = StyleSheet.create({
   container: {
