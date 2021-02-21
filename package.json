@@ -5,9 +5,14 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "test": "jest"
+  },
+  "jest": {
+    "preset": "jest-expo"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.13.4",
     "@react-native-community/masked-view": "0.1.10",
     "@react-native-community/picker": "^1.8.1",
     "@react-native-picker/picker": "1.9.2",
@@ -25,8 +30,12 @@
     "express": "^4.17.1",
     "firebase": "7.9.0",
     "formik": "2.1.4",
+    "gpx-parser-builder": "^1.0.2",
+    "gpxparser": "^3.0.7",
     "i": "^0.3.6",
     "leaflet": "^1.7.1",
+    "node-fetch": "^2.6.1",
+    "object-to-array-convert": "^1.1.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-leaflet": "^3.0.5",
@@ -36,6 +45,8 @@
     "react-native-gesture-handler": "~1.8.0",
     "react-native-hide-with-keyboard": "1.2.1",
     "react-native-keyboard-aware-scroll-view": "^0.9.3",
+    "react-native-maps": "0.27.1",
+    "react-native-modal": "^11.6.1",
     "react-native-picker-select": "^8.0.4",
     "react-native-reanimated": "~1.13.0",
     "react-native-safe-area-context": "3.1.9",
@@ -43,12 +54,16 @@
     "react-native-vector-icons": "^8.0.0",
     "react-native-web": "~0.13.12",
     "react-navigation-tabs": "^2.10.1",
+    "xml2js": "^0.4.23",
+    "xml2json-light": "^1.0.6",
     "yup": "0.27.0"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",
     "@babel/runtime": "^7.9.0",
-    "babel-preset-expo": "8.3.0"
+    "babel-preset-expo": "8.3.0",
+    "jest-expo": "^40.0.2",
+    "react-test-renderer": "^17.0.1"
   },
   "private": true,
   "version": "0.0.0"
