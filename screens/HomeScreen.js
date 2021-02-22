@@ -77,43 +77,24 @@ export default function HomeScreen({ navigation }) {
     (async () => {
 
       
-      setInterval(async () => {
-        // if(modalVisible) return;
+      var interVal = setInterval(async () => {
+        
+          let location = await Location.getCurrentPositionAsync({});
+          setCurLon(location["coords"]['longitude']);
+          setCurLat(location["coords"]['latitude']);
+        
+          let result = await fetch('https://0186u6yf60.execute-api.eu-west-2.amazonaws.com/v1/check_location?lon=' + location["coords"]['longitude'] + '&lat=' + location["coords"]['latitude']);
+          let POIs = await result.json();
 
-      let location = await Location.getCurrentPositionAsync({});
-      setCurLon(location["coords"]['longitude']);
-      setCurLat(location["coords"]['latitude']);
-   
-      
-      let result = await fetch('https://0186u6yf60.execute-api.eu-west-2.amazonaws.com/v1/check_location?lon=' + location["coords"]['longitude'] + '&lat=' + location["coords"]['latitude']);
-      let POIs = await result.json();
+          let reminderTypes = await getReminderTypes();
+          setReminderType(reminderTypes);
 
-  
-      let reminderTypes = await getReminderTypes();
-      setReminderType(reminderTypes);
+          let mapMarkers = await buildMapMarkers(POIs, reminderTypes);
+          setMarkersArray(mapMarkers);
 
-
-      
-      //setReminderType(reminderTypes);
-
-
-      let mapMarkers = await buildMapMarkers(POIs, reminderTypes);
-      setMarkersArray(mapMarkers);
-
-      console.log(mapMarkers);
-
-
-      // console.log('Markers:')
-      // console.log(markersArray);
-      // console.log('Markers count:' + mapMarkers.markers.length);
-      
-
-
-      // if(mapMarkers.markers.length > 1){
-      //   setModalVisible(true);
-      // } else {
-      //   setModalVisible(false);
-      // }
+          if(mapMarkers.markers.length > 0){
+            clearInterval(interVal);
+          }
       
       }, 1000);
 
@@ -144,37 +125,25 @@ export default function HomeScreen({ navigation }) {
         markers:[]
       }
 
-      console.log("inside" + reminderTypes);
-
-      //console.log("poi markers called");
-      //if(reminderType != undefined){
-
-
-        POIs['body'].forEach(function(Element) {
-          
-          if(reminderTypes.includes(Element[2])){
+    POIs['body'].forEach(function(Element) {
+      if(reminderTypes.includes(Element[2])){
                 
-            const coords_res = getCords(Element[4]);
+        const coords_res = getCords(Element[4]);
             
-            const obj = ({
-              coordinates: ({
-                latitude: Number(coords_res[1]),
-                longitude: Number(coords_res[0]),
-              }),
-              title: Element[0]
-            })
-    
-            poi_markers.markers.push(obj);
-          
-       }
-
-       
-
+        const obj = ({
+          coordinates: ({
+            latitude: Number(coords_res[1]),
+            longitude: Number(coords_res[0]),
+          }),
+            title: Element[0]
         });
-      //}
-       
-      
-      return poi_markers;
+    
+        poi_markers.markers.push(obj);
+          
+      }
+    });
+    
+    return poi_markers;
       
   };
 
@@ -240,19 +209,19 @@ export default function HomeScreen({ navigation }) {
   
 
   function MapPopup(){
+
     if(markersArray == undefined) {return false}
-    //console.log("here")
-    //console.log(markersArray.markers.length);
-
     if(markersArray.markers.length == 0) {return false}
-
-    
+    //if(reminders.reminder == undefined) {return false}
 
       return(
           <Modal isVisible={true} >
             <View style={styles.modal}>
             
-            <MapView style={styles.map} showsUserLocation={true}
+            <MapView 
+              style={styles.map} 
+              showsUserLocation={true}
+
               initialRegion={{
                 latitude: curLat,
                 longitude: curLon,
@@ -268,7 +237,7 @@ export default function HomeScreen({ navigation }) {
             ))} 
     
             </MapView>
-    
+           <Text style={styles.modal_heading_text}>Reminder</Text>
            <Button title="close" ></Button>
     
             </View>
@@ -289,15 +258,9 @@ export default function HomeScreen({ navigation }) {
           
           {/* <Button title="Sign Out" onPress={handleSignOut} /> */}
          
-        <Text>{curLat}</Text>
-         <Text>{curLon}</Text>
-         {/* <Text>{markersArray}</Text> */}
     
           <FlatList
             data={reminders}
-            // renderItem={({ item }) => {
-            //   return <Text style={styles.item}>{item.reminder + "\n" + item.location + "\n" + item.completed}</Text>;
-            // }}
             renderItem={renderItem}
             keyExtractor={item => item.id}
             extraData={selectedId}
@@ -305,16 +268,11 @@ export default function HomeScreen({ navigation }) {
 
           <MapPopup/>
         
-
-
-         
-
-    
-            <ActionButton
-              size={70}
-              buttonColor="rgb(60, 179, 113)"
-              onPress={() => { navigation.navigate('AddEvent')}}
-            />
+          <ActionButton
+            size={70}
+            buttonColor="rgb(60, 179, 113)"
+            onPress={() => { navigation.navigate('AddEvent')}}
+          />
         </View>
       );
 }
