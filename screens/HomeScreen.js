@@ -1,10 +1,12 @@
 import React, { useState, useEffect, PureComponent  } from 'react';
-import { View, StyleSheet, Button, FlatList, Text, TouchableOpacity, TouchableHighlight, Dimensions } from 'react-native';
+import { View, StyleSheet, Button, FlatList, Text, TouchableOpacity, TouchableHighlight, Dimensions, LogBox } from 'react-native';
 import * as Location from 'expo-location';
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal';
 import MapView, {Marker} from 'react-native-maps';
+var _ = require('underscore');
+
 
 import Spinner from '../components/Spinner';
 import AppButton from '../components/AppButton';
@@ -14,12 +16,13 @@ import { firebase_db } from '../components/Firebase/firebase'
 import { auth } from '../components/Firebase/firebase'
 import colors from '../utils/colors';
 
-
+LogBox.ignoreLogs(['Setting a timer']);
+LogBox.ignoreLogs(['Warning: componentWillReceiveProps has been renamed'])
 
 
 const Item = ({ item, onPress, style }) => (
   <TouchableOpacity onPress={onPress} style={[styles.item, style]}>
-    <Text style={styles.title}>{item.reminder + "\n" + item.location + "\n" + item.completed}</Text>
+    <Text style={styles.title}>{item.reminder + "\n" + item.completed}</Text>
   </TouchableOpacity>
 );
 
@@ -36,6 +39,7 @@ export default function HomeScreen({ navigation }) {
   // Tracking users current position
   const [ curLon, setCurLon ] = useState();
   const [ curLat, setCurLat ] = useState();
+  const [ remindersToDisplay, setRemindersToDisplay ] = useState();
 
   
 
@@ -76,8 +80,8 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     (async () => {
 
-      
-      var interVal = setInterval(async () => {
+        
+    //  var interVal = setInterval(async () => {
         
           let location = await Location.getCurrentPositionAsync({});
           setCurLon(location["coords"]['longitude']);
@@ -87,16 +91,20 @@ export default function HomeScreen({ navigation }) {
           let POIs = await result.json();
 
           let reminderTypes = await getReminderTypes();
+          //console.log(reminderTypes);
           setReminderType(reminderTypes);
 
+          
+
           let mapMarkers = await buildMapMarkers(POIs, reminderTypes);
+          //console.log(mapMarkers);
           setMarkersArray(mapMarkers);
 
-          if(mapMarkers.markers.length > 0){
-            clearInterval(interVal);
-          }
+          // if(mapMarkers.markers.length > 0){
+          //   clearInterval(interVal);
+          // }
       
-      }, 1000);
+      // }, 1000);
 
     })();
   }, []);
@@ -110,42 +118,94 @@ export default function HomeScreen({ navigation }) {
     const reminders = [];
 
     locations.forEach(doc => {
-      const { location } = doc.data()
-      reminders.push(location);
-    });
+      const { location, reminder } = doc.data()
+      //(reminder)
+      //reminders.push(location);
 
+      reminders.push({
+        location: location,
+        reminder: reminder
+      })
+
+    });
     return reminders; 
   }
 
   
-
+ 
  
   async function buildMapMarkers(POIs, reminderTypes) {
     var poi_markers = {
         markers:[]
       }
 
-    POIs['body'].forEach(function(Element) {
-      if(reminderTypes.includes(Element[2])){
+    const reminders_to_display = [];
+
+    const POI_TYPE = 2;
+
+    // destruct locations from array
+    const locations = [];
+    const reminders = [];
+
+    reminderTypes.forEach(function(Element){
+      locations.push(Element.location);
+      reminders.push(Element.reminder);
+    });
+    //console.log(POIs['body'].flat());
+    //console.log(locations);
+    //console.log(POIs['body']);
+    //console.log(POIs['body'].flat().includes(locations.flat()))
+    //console.log(_.contains(POIs['body'].flat(), locations[1]));
+
+    for (let i = 0; i < reminders.length; i++) {
+      if(_.contains(POIs['body'].flat(), locations[i])){
+        reminders_to_display.push(reminders[i]);
+      }
+    }
+                                                   
+    // reminders.forEach(function(Reminder){
+    //   if(POIs['body'].includes(locations)){
+    //     console.log('true');
+    //   } else { 
+    //     console.log(Reminder);
+    //   }
+    // });
+
+    POIs['body'].forEach(function(POI) {
+      if(locations.includes(POI[POI_TYPE])){
+
+        //reminders_to_display.push(reminders);
+
+        // This element [2] is our reminder type should show our reminders
+        //console.log(reminderTypes); THE TYPES WE WANT TO DISPLAY 
+        // console.log("here " + JSON.stringify(reminders.reminder));
+        // console.log(reminders.reminder); 
+      
+        //reminders_to_display.push(reminders.reminder);
+        
+        
                 
-        const coords_res = getCords(Element[4]);
+        const coords_res = getCords(POI[4]);
             
         const obj = ({
           coordinates: ({
             latitude: Number(coords_res[1]),
             longitude: Number(coords_res[0]),
           }),
-            title: Element[0]
+            title: POI[0]
         });
     
         poi_markers.markers.push(obj);
           
       }
     });
-    
+    console.log(reminders_to_display);
+    setRemindersToDisplay(reminders_to_display);
     return poi_markers;
       
   };
+
+  //console.log(remindersToDisplay);
 
 
 
@@ -173,6 +233,7 @@ export default function HomeScreen({ navigation }) {
             id: doc.id,
             reminder,
             completed,
+            location
           });
 
           locations.push(location);
@@ -186,20 +247,20 @@ export default function HomeScreen({ navigation }) {
       
       //console.log(reminder_list)
       // Tracking locations of reminders
-      //setReminderLocations(locations);
+      //setReminderLocations(locations); 
       //console.log(locations);
     
 
     });
   }, []);
  
-  // async function handleSignOut() {
-  //   try {
-  //     await logout();
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
+  async function handleSignOut() {
+    try {
+      await logout();
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
 
   // if(markersArray == undefined){
@@ -212,7 +273,11 @@ export default function HomeScreen({ navigation }) {
 
     if(markersArray == undefined) {return false}
     if(markersArray.markers.length == 0) {return false}
+    if(remindersToDisplay == undefined) {return false}
     //if(reminders.reminder == undefined) {return false}
+
+    console.log(curLat);
+    console.log(curLon)
 
       return(
           <Modal isVisible={true} >
@@ -221,7 +286,6 @@ export default function HomeScreen({ navigation }) {
             <MapView 
               style={styles.map} 
               showsUserLocation={true}
-
               initialRegion={{
                 latitude: curLat,
                 longitude: curLon,
@@ -237,8 +301,12 @@ export default function HomeScreen({ navigation }) {
             ))} 
     
             </MapView>
+
+
            <Text style={styles.modal_heading_text}>Reminder</Text>
-           <Button title="close" ></Button>
+           <Text>{remindersToDisplay}</Text>
+           <Button title="Completed" ></Button>
+           <Button title="Did not complete" ></Button>
     
             </View>
           </Modal> 
@@ -253,10 +321,10 @@ export default function HomeScreen({ navigation }) {
   
         <View style={styles.container}>
     
-          <Text>{JSON.stringify(reminderType)}</Text>
-          <Text>{JSON.stringify(markersArray)}</Text>
+          {/* <Text>{JSON.stringify(reminderType)}</Text>
+          <Text>{JSON.stringify(markersArray)}</Text> */}
           
-          {/* <Button title="Sign Out" onPress={handleSignOut} /> */}
+          <Button title="Sign Out" onPress={handleSignOut} />
          
     
           <FlatList
@@ -295,7 +363,7 @@ const styles = StyleSheet.create({
   },
   map: {
     width: Dimensions.get('window').width * 0.9,
-    height: Dimensions.get('window').height / 2,
+    height: Dimensions.get('window').height / 3,
     borderRadius:10,
   },
   modal: {
