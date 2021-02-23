@@ -5,6 +5,7 @@ import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal';
 import MapView, {Marker} from 'react-native-maps';
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 var _ = require('underscore');
 
 
@@ -151,40 +152,17 @@ export default function HomeScreen({ navigation }) {
       locations.push(Element.location);
       reminders.push(Element.reminder);
     });
-    //console.log(POIs['body'].flat());
-    //console.log(locations);
-    //console.log(POIs['body']);
-    //console.log(POIs['body'].flat().includes(locations.flat()))
-    //console.log(_.contains(POIs['body'].flat(), locations[1]));
-
+   
     for (let i = 0; i < reminders.length; i++) {
       if(_.contains(POIs['body'].flat(), locations[i])){
         reminders_to_display.push(reminders[i]);
       }
     }
                                                    
-    // reminders.forEach(function(Reminder){
-    //   if(POIs['body'].includes(locations)){
-    //     console.log('true');
-    //   } else { 
-    //     console.log(Reminder);
-    //   }
-    // });
-
+ 
     POIs['body'].forEach(function(POI) {
       if(locations.includes(POI[POI_TYPE])){
 
-        //reminders_to_display.push(reminders);
-
-        // This element [2] is our reminder type should show our reminders
-        //console.log(reminderTypes); THE TYPES WE WANT TO DISPLAY 
-        // console.log("here " + JSON.stringify(reminders.reminder));
-        // console.log(reminders.reminder); 
-      
-        //reminders_to_display.push(reminders.reminder);
-        
-        
-                
         const coords_res = getCords(POI[4]);
             
         const obj = ({
@@ -205,9 +183,6 @@ export default function HomeScreen({ navigation }) {
       
   };
 
-  //console.log(remindersToDisplay);
-
-
 
   const getCords = (POI) => {
     const remove_point = POI.replace("POINT", "")
@@ -218,8 +193,6 @@ export default function HomeScreen({ navigation }) {
     return coords;
 
   }
-
-
 
   // Populates the reminders state
   useEffect(() => {
@@ -240,17 +213,9 @@ export default function HomeScreen({ navigation }) {
         }
       });
 
-      //console.log(reminder_list);
-      // Tracking users reminders 
       setReminders(reminder_list);
-      //console.log(reminders);
+ 
       
-      //console.log(reminder_list)
-      // Tracking locations of reminders
-      //setReminderLocations(locations); 
-      //console.log(locations);
-    
-
     });
   }, []);
  
@@ -274,11 +239,7 @@ export default function HomeScreen({ navigation }) {
     if(markersArray == undefined) {return false}
     if(markersArray.markers.length == 0) {return false}
     if(remindersToDisplay == undefined) {return false}
-    //if(reminders.reminder == undefined) {return false}
-
-    console.log(curLat);
-    console.log(curLon)
-
+ 
       return(
           <Modal isVisible={true} >
             <View style={styles.modal}>
@@ -302,11 +263,25 @@ export default function HomeScreen({ navigation }) {
     
             </MapView>
 
+         
+           <Text style={styles.modal_heading_text}>Reminder 🎉</Text>
+           
+           {remindersToDisplay.map(reminder => (
+            <BouncyCheckbox
+            
+              borderColor="green"
+              textColor="black"
+              fillColor="green"
+              text={reminder}
+              fontSize={20}
+              onPress={(checked) => console.log("Checked: ", checked)}
+            />
+            ))} 
 
-           <Text style={styles.modal_heading_text}>Reminder</Text>
-           <Text>{remindersToDisplay}</Text>
-           <Button title="Completed" ></Button>
-           <Button title="Did not complete" ></Button>
+           
+
+           {/* <Button title="Completed" ></Button>
+           <Button title="Did not complete" ></Button> */}
     
             </View>
           </Modal> 
@@ -321,8 +296,7 @@ export default function HomeScreen({ navigation }) {
   
         <View style={styles.container}>
     
-          {/* <Text>{JSON.stringify(reminderType)}</Text>
-          <Text>{JSON.stringify(markersArray)}</Text> */}
+
           
           <Button title="Sign Out" onPress={handleSignOut} />
          
@@ -371,9 +345,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',    
     //padding: 10,
     borderRadius:10,
-    alignItems: 'center',
+    alignItems: 'flex-start',
  },
  modal_heading_text:{
-   fontSize:32,
- }
+   fontSize:30,
+   padding: 10,
+   fontWeight: "bold",
+ },
+
 });
