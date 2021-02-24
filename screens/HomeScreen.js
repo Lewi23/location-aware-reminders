@@ -28,8 +28,6 @@ const Item = ({ item, onPress, style }) => (
 );
 
 
-
-
 export default function HomeScreen({ navigation }) {
   useStatusBar('light-content');
 
@@ -48,7 +46,8 @@ export default function HomeScreen({ navigation }) {
   const [ selectedId, setSelectedId ] = useState(null);
   
   const [ markersArray, setMarkersArray ] = useState();
-  const [ modalVisible, setModalVisible ] = useState(false);
+  const [ completed, setCompleted ] = useState();
+  const [ modalVisible, setModalVisible ] = useState(true);
   const [ reminderType , setReminderType ] = useState();
   const [ loop, setLoop] = useState(true);
 
@@ -101,9 +100,10 @@ export default function HomeScreen({ navigation }) {
           //console.log(mapMarkers);
           setMarkersArray(mapMarkers);
 
-          // if(mapMarkers.markers.length > 0){
+          if(mapMarkers.markers.length > 0){
+            setModalVisible(true);
           //   clearInterval(interVal);
-          // }
+          }
       
       // }, 1000);
 
@@ -119,13 +119,14 @@ export default function HomeScreen({ navigation }) {
     const reminders = [];
 
     locations.forEach(doc => {
-      const { location, reminder } = doc.data()
+      const { location, reminder, completed} = doc.data()
       //(reminder)
       //reminders.push(location);
 
       reminders.push({
         location: location,
-        reminder: reminder
+        reminder: reminder,
+        status: completed
       })
 
     });
@@ -147,15 +148,24 @@ export default function HomeScreen({ navigation }) {
     // destruct locations from array
     const locations = [];
     const reminders = [];
+    const status = [];
 
     reminderTypes.forEach(function(Element){
       locations.push(Element.location);
       reminders.push(Element.reminder);
+      status.push(Element.status);
     });
    
+    // Only shows reminders that are nearby
+    // Check if each of our reminders features in any nearby POI's
+    // add it to reminders to display as we will build points for them bellow
     for (let i = 0; i < reminders.length; i++) {
       if(_.contains(POIs['body'].flat(), locations[i])){
-        reminders_to_display.push(reminders[i]);
+        if(status[i] == false){
+          //console.log(reminders)
+          reminders_to_display.push(reminders[i]);
+        }
+        
       }
     }
                                                    
@@ -177,7 +187,7 @@ export default function HomeScreen({ navigation }) {
           
       }
     });
-    console.log(reminders_to_display);
+    //console.log(reminders_to_display);
     setRemindersToDisplay(reminders_to_display);
     return poi_markers;
       
@@ -218,6 +228,24 @@ export default function HomeScreen({ navigation }) {
       
     });
   }, []);
+
+  
+  // handle selection of reminders on popup
+  const curIsSelected = [];
+
+  function isSelected(key){
+ 
+    if(curIsSelected.includes(key)){
+      const index = curIsSelected.indexOf(key);
+        if (index > -1) {
+          curIsSelected.splice(index, 1);
+        }
+    } else {
+      curIsSelected.push(key);
+    }
+  }
+
+  //console.log(curIsSelected);
  
   async function handleSignOut() {
     try {
@@ -232,7 +260,65 @@ export default function HomeScreen({ navigation }) {
   //   return <Spinner />;
   // } else if(markersArray != undefined) {
 
+
+
+  async function handle_completion(){
+    
+    //Index of completed reminders 
+    const completed = curIsSelected.sort()
+    //console.log(completed);
   
+    //SHITTY NAME - RENAME
+    //console.log(remindersToDisplay);
+
+    const completed_reminders = [];
+
+    for (let index = 0; index < completed.length; index++) {
+      //console.log(remindersToDisplay[completed[index]]);
+      completed_reminders.push(remindersToDisplay[completed[index]]);
+    }
+
+    //console.log(completed_reminders);
+
+    const alter_reminder = [];
+    
+    const reminders = await firebase_db
+          .collection(auth.currentUser.uid)
+          .get();
+
+    reminders.forEach(doc => {
+      const { reminder, completed } = doc.data()
+
+      if(completed == false && completed_reminders.includes(reminder)){
+        //console.log(reminder)
+        //console.log(_.contains(remindersToDisplay, reminder));
+        //reminders.push(location);
+  
+        // a match we want to alter this doc to completed
+        if(_.contains(remindersToDisplay, reminder)){
+          alter_reminder.push(doc.id);
+        }
+      }
+
+      
+    });
+
+   
+
+    //console.log(alter_reminder);
+    alter_reminder.forEach(function(reminder_id){
+      firebase_db
+      .collection(auth.currentUser.uid)
+      .doc(reminder_id)
+      .update({completed: true});
+    })
+
+
+    // have to close it last
+    setModalVisible(false);
+
+
+  }
 
   function MapPopup(){
 
@@ -241,7 +327,7 @@ export default function HomeScreen({ navigation }) {
     if(remindersToDisplay == undefined) {return false}
  
       return(
-          <Modal isVisible={true} >
+          <Modal isVisible={modalVisible} >
             <View style={styles.modal}>
             
             <MapView 
@@ -265,18 +351,22 @@ export default function HomeScreen({ navigation }) {
 
          
            <Text style={styles.modal_heading_text}>Reminder 🎉</Text>
-           
-           {remindersToDisplay.map(reminder => (
-            <BouncyCheckbox
-            
-              borderColor="green"
-              textColor="black"
-              fillColor="green"
-              text={reminder}
-              fontSize={20}
-              onPress={(checked) => console.log("Checked: ", checked)}
-            />
-            ))} 
+           <View style={styles.reminder_style}>
+              {remindersToDisplay.map((reminder,index) => (
+              <BouncyCheckbox
+                key={index}
+                borderColor="green"
+                textColor="black"
+                fillColor="green"
+                text={reminder}
+                fontSize={20}
+                onPress={(checked) => isSelected(index)}
+                // onPress={(checked) => setCompleted(checked)}
+              />
+              ))} 
+            </View>
+
+            <Button title="Completed" onPress={() => handle_completion()} />
 
            
 
@@ -308,7 +398,7 @@ export default function HomeScreen({ navigation }) {
             extraData={selectedId}
           />
 
-          <MapPopup/>
+          <MapPopup/> 
         
           <ActionButton
             size={70}
@@ -352,5 +442,8 @@ const styles = StyleSheet.create({
    padding: 10,
    fontWeight: "bold",
  },
+ reminder_style:{
+   padding: 10
+ }
 
 });
