@@ -1,4 +1,4 @@
-import React, { useState, useEffect, PureComponent  } from 'react';
+import React, { useState, useEffect, useRef, PureComponent  } from 'react';
 import { View, StyleSheet, Button, FlatList, Text, TouchableOpacity, TouchableHighlight, Dimensions, LogBox } from 'react-native';
 import * as Location from 'expo-location';
 import ActionButton from 'react-native-action-button';
@@ -21,14 +21,50 @@ LogBox.ignoreLogs(['Setting a timer']);
 LogBox.ignoreLogs(['Warning: componentWillReceiveProps has been renamed'])
 
 
-const Item = ({ item, onPress, style }) => (
-  <TouchableOpacity onPress={onPress} style={[styles.item, style]}>
-    <Text style={styles.title}>{item.reminder + "\n" + item.completed}</Text>
-  </TouchableOpacity>
-);
+// const Item = ({ item, onPress, style }) => (
+
+
+//     <TouchableOpacity onPress={onPress} style={[styles.item, style]}>
+//       <Text style={styles.title}>{item.reminder + "\n" + item.completed}</Text>
+//     </TouchableOpacity>
+  
+  
+// );
+
+
+function Item({ item, onPress, style }){
+
+    let title;
+
+    switch(item.location){
+      case 'Food, Drink and Multi Item Retail':
+        title = '🛒  '
+        break;
+      case 'Nature':
+        title = '🌳  '
+        break;
+    }
+
+
+    return(
+      <TouchableOpacity onPress={onPress} style={[styles.item, style]}>
+        <Text style={styles.item_title}>{title}</Text>
+        <Text>{'\n' + item.reminder}</Text>
+        {/* <Text style={styles.title}>{item.reminder + "\n" + item.completed}</Text> */}
+      </TouchableOpacity>
+    );
+  
+}
+
 
 
 export default function HomeScreen({ navigation }) {
+
+  
+
+
+
+
   useStatusBar('light-content');
 
   // Reminders a user has created 
@@ -55,7 +91,7 @@ export default function HomeScreen({ navigation }) {
 
   // Render flat list items
   const renderItem = ({ item }) => {
-    const backgroundColor = item.id === selectedId ? "#6e3b6e" : "#f9c2ff";
+    const backgroundColor = item.id === selectedId ? "white" : "white";
     return (
       <Item
         item={item}
@@ -320,34 +356,68 @@ export default function HomeScreen({ navigation }) {
 
   }
 
+
+  
+ 
+
   function MapPopup(){
+
+    const LatLngArr = [];
+
+    let mapRef = useRef(null);
 
     if(markersArray == undefined) {return false}
     if(markersArray.markers.length == 0) {return false}
     if(remindersToDisplay == undefined) {return false}
+   
+
+    function zoomToMarkers(){
+      //....trying to get the value here
+      //console.log(markers_arr);
+
+      console.log(markersArray.markers)
+      
+
+      markersArray.markers.forEach(function(Element){
+        const LatLng = ({
+          latitude: Element.coordinates.latitude,
+          longitude: Element.coordinates.longitude,
+        })
+
+        LatLngArr.push(LatLng);
+
+      });
+      
+      //console.log(LatLngArr);
+      mapRef.fitToCoordinates(LatLngArr , {
+        edgePadding: { bottom: 40, right: 40, left: 40, top: 40},
+        animated: true,
+      });
+
+    }
+  
  
       return(
           <Modal isVisible={modalVisible} >
             <View style={styles.modal}>
             
             <MapView 
-              style={styles.map} 
+              ref={(ref) => mapRef = ref}
+              style={styles.map}
               showsUserLocation={true}
-              initialRegion={{
-                latitude: curLat,
-                longitude: curLon,
-                latitudeDelta: 0,
-                longitudeDelta: 0,
-              }}
+              onMapReady={zoomToMarkers}
             >
-            {markersArray.markers.map(marker => (
-              <MapView.Marker 
-                coordinate={marker.coordinates}
-                title={marker.title}
-              />
-            ))} 
-    
+              {markersArray.markers.map((marker,index) => (
+                <MapView.Marker 
+                  //identifier={(index) => markers_arr.push(num.toString(index))}
+                  //identifier={'lewis'}
+                  coordinate={marker.coordinates}
+                  title={marker.title}
+                />
+              ))} 
             </MapView>
+
+        
 
          
            <Text style={styles.modal_heading_text}>Reminder 🎉</Text>
@@ -361,23 +431,18 @@ export default function HomeScreen({ navigation }) {
                 text={reminder}
                 fontSize={20}
                 onPress={(checked) => isSelected(index)}
-                // onPress={(checked) => setCompleted(checked)}
               />
               ))} 
             </View>
 
             <Button title="Completed" onPress={() => handle_completion()} />
-
-           
-
-           {/* <Button title="Completed" ></Button>
-           <Button title="Did not complete" ></Button> */}
     
             </View>
           </Modal> 
       );
-    
-  }
+
+     
+  } 
 
 
   
@@ -388,7 +453,7 @@ export default function HomeScreen({ navigation }) {
     
 
           
-          <Button title="Sign Out" onPress={handleSignOut} />
+          {/* <Button title="Sign Out" onPress={handleSignOut} /> */}
          
     
           <FlatList
@@ -403,7 +468,7 @@ export default function HomeScreen({ navigation }) {
           <ActionButton
             size={70}
             buttonColor="rgb(60, 179, 113)"
-            onPress={() => { navigation.navigate('AddEvent')}}
+            onPress={() => { navigation.navigate('Create Reminder')}}
           />
         </View>
       );
@@ -417,13 +482,18 @@ const styles = StyleSheet.create({
   button_container:{
     flex: 1
   },
+  item_title: {
+    fontSize:60,
+  },
   item: {
     backgroundColor: 'black',
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 16,
     fontSize: 20,
-    color: 'white'
+    color: 'white',
+    borderRadius:10,
+    borderColor: "blue"
   },
   map: {
     width: Dimensions.get('window').width * 0.9,
