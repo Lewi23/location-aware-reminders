@@ -12,6 +12,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.3",
     "@react-native-async-storage/async-storage": "^1.13.4",
     "@react-native-community/masked-view": "0.1.10",
     "@react-native-community/picker": "^1.8.1",
@@ -42,11 +43,13 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-40.0.0.tar.gz",
     "react-native-action-button": "^2.8.5",
     "react-native-background-geolocation": "^3.9.3",
+    "react-native-bouncy-checkbox": "^1.0.8",
     "react-native-gesture-handler": "~1.8.0",
     "react-native-hide-with-keyboard": "1.2.1",
     "react-native-keyboard-aware-scroll-view": "^0.9.3",
     "react-native-maps": "0.27.1",
     "react-native-modal": "^11.6.1",
+    "react-native-paper": "^4.7.2",
     "react-native-picker-select": "^8.0.4",
     "react-native-reanimated": "~1.13.0",
     "react-native-safe-area-context": "3.1.9",
@@ -54,6 +57,7 @@
     "react-native-vector-icons": "^8.0.0",
     "react-native-web": "~0.13.12",
     "react-navigation-tabs": "^2.10.1",
+    "underscore": "^1.12.0",
     "xml2js": "^0.4.23",
     "xml2json-light": "^1.0.6",
     "yup": "0.27.0"
