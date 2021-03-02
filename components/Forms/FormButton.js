@@ -3,7 +3,7 @@ import { useFormikContext } from "formik";
 import { Button } from "react-native-paper";
 import Colors from "../../utils/colors";
 
-export default function FormButton({ title }) {
+export default function FormButton() {
   const { handleSubmit } = useFormikContext();
 
   return (

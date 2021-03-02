@@ -4,7 +4,9 @@ import RNPickerSelect from 'react-native-picker-select';
 import { firebase_db } from '../components/Firebase/firebase'
 import { auth } from '../components/Firebase/firebase'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import * as Yup from 'yup';
+
 
 
 import Colors from '../utils/colors';
@@ -16,9 +18,12 @@ import FormErrorMessage from '../components/Forms/FormErrorMessage';
 import useStatusBar from '../hooks/useStatusBar';
 
 //GUI imports
-import { Chip } from 'react-native-paper';
-import { Subheading } from 'react-native-paper';
-import { TextInput } from 'react-native-paper';
+import { Chip, Subheading, Button } from 'react-native-paper';
+import colors from '../utils/colors';
+
+
+
+
 
 // Build Chips
 const ontology_buttons = [
@@ -43,13 +48,14 @@ const ontology_types = [
 
 const validationSchema = Yup.object().shape({
   reminder: Yup.string()
-    .required('Please enter the reminder')
+    .required('Please enter the reminder'),
 });
 
 
 export default function AddEventScreen({ navigation: { goBack } }) {
   useStatusBar('light-content');
 
+  
 
   async function addReminder(values){
 
@@ -63,8 +69,9 @@ export default function AddEventScreen({ navigation: { goBack } }) {
   }
 
   const [customError, setCustomError] = useState('');
-  const [location_val, setLocation] = useState('');
-  const [ curIsSelected, setCurIsSelected ] = useState(-1);
+  const [ curIsSelected, setCurIsSelected ] = useState(0);
+
+
 
 
 
@@ -78,7 +85,7 @@ export default function AddEventScreen({ navigation: { goBack } }) {
       >
 
   
-        <Subheading>Create Reminder</Subheading>
+        
 
         <FormField
           name="reminder"
@@ -87,8 +94,11 @@ export default function AddEventScreen({ navigation: { goBack } }) {
           autoCapitalize="sentences"
           keyboardType="ascii-capable"
           textContentType="emailAddress"
-          autoFocus={true}
         />
+
+    
+
+      <Subheading>Location</Subheading>
 
       
       <View style={styles.row}>
@@ -113,21 +123,38 @@ export default function AddEventScreen({ navigation: { goBack } }) {
 
        
         <FormButton title="Add reminder" />
+
+
+        <View style={styles.button_holder}>
+
+        
         {<FormErrorMessage error={customError} visible={true} />}
+
+
+        <Button 
+         mode="contained"
+         uppercase={false} 
+         onPress={() => console.log('Pressed')}
+         style={{
+           backgroundColor: "#ff3b30"
+         }}
+         labelStyle={{
+           color:"white",
+           fontSize: 20
+        }}
+        >
+            Cancel
+        </Button>
+
+        </View>
+
+        
+
       </Form>
-
-    
-
-
     </SafeView>
   );
 }
 
-//RNPickerSelect
-const placeholder = {
-  label: 'Select a location',
-  color: 'black',
-};
 
 const styles = StyleSheet.create({
   container: {
@@ -155,15 +182,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     //paddingHorizontal: 10,
-    paddingVertical: 20
+    paddingVertical: 10
   },
   chip_not_selected: {
-    backgroundColor: "#d0d9d3",
+    backgroundColor: Colors.lightGrey,
     color: "black",
     margin: 4
   },
   chip_selected: {
-    backgroundColor: "green",
+    backgroundColor: Colors.green,
     color: "white",
     margin: 4
   },
@@ -174,5 +201,10 @@ const styles = StyleSheet.create({
   chip_text_selected: {
     color: "white",
     fontSize: 16
+  },
+  button_holder:{
+    marginVertical: 10,
+    
+  
   }
 });
