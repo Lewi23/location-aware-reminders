@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, PureComponent  } from 'react';
-import { View, StyleSheet, Button, FlatList, Text, TouchableOpacity, TouchableHighlight, Dimensions, LogBox } from 'react-native';
+import { View, StyleSheet, FlatList, Text, TouchableOpacity, TouchableHighlight, Dimensions, LogBox } from 'react-native';
 import * as Location from 'expo-location';
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -9,13 +9,21 @@ import BouncyCheckbox from "react-native-bouncy-checkbox";
 var _ = require('underscore');
 
 
+import Slider from '@material-ui/core/Slider';
+import Typography from '@material-ui/core/Typography';
+
+
 import Spinner from '../components/Spinner';
 import AppButton from '../components/AppButton';
 import useStatusBar from '../hooks/useStatusBar';
 import { logout } from '../components/Firebase/firebase';
 import { firebase_db } from '../components/Firebase/firebase'
 import { auth } from '../components/Firebase/firebase'
-import colors from '../utils/colors';
+import Colors from '../utils/colors';
+
+
+import { Button } from "react-native-paper";
+
 
 LogBox.ignoreLogs(['Setting a timer']);
 LogBox.ignoreLogs(['Warning: componentWillReceiveProps has been renamed'])
@@ -372,11 +380,6 @@ export default function HomeScreen({ navigation }) {
    
 
     function zoomToMarkers(){
-      //....trying to get the value here
-      //console.log(markers_arr);
-
-      console.log(markersArray.markers)
-      
 
       markersArray.markers.forEach(function(Element){
         const LatLng = ({
@@ -387,8 +390,7 @@ export default function HomeScreen({ navigation }) {
         LatLngArr.push(LatLng);
 
       });
-      
-      //console.log(LatLngArr);
+  
       mapRef.fitToCoordinates(LatLngArr , {
         edgePadding: { bottom: 40, right: 40, left: 40, top: 40},
         animated: true,
@@ -400,7 +402,6 @@ export default function HomeScreen({ navigation }) {
       return(
           <Modal isVisible={modalVisible} >
             <View style={styles.modal}>
-            
             <MapView 
               ref={(ref) => mapRef = ref}
               style={styles.map}
@@ -409,8 +410,6 @@ export default function HomeScreen({ navigation }) {
             >
               {markersArray.markers.map((marker,index) => (
                 <MapView.Marker 
-                  //identifier={(index) => markers_arr.push(num.toString(index))}
-                  //identifier={'lewis'}
                   coordinate={marker.coordinates}
                   title={marker.title}
                 />
@@ -418,8 +417,6 @@ export default function HomeScreen({ navigation }) {
             </MapView>
 
         
-
-         
            <Text style={styles.modal_heading_text}>Reminder 🎉</Text>
            <View style={styles.reminder_style}>
               {remindersToDisplay.map((reminder,index) => (
@@ -435,9 +432,57 @@ export default function HomeScreen({ navigation }) {
               ))} 
             </View>
 
-            <Button title="Completed" onPress={() => handle_completion()} />
-    
+         
+
+            <View style={styles.complete_button}>
+                 
+            <Button
+            mode="contained"
+            uppercase={false}
+            onPress={handle_completion}
+            style={{
+              backgroundColor: Colors.green,
+              borderBottomLeftRadius: 10,
+              borderBottomRightRadius: 0,
+              borderTopLeftRadius: 0,
+              borderTopRightRadius: 0,
+            }}
+            labelStyle={{
+              color: Colors.white,
+              fontSize: 20,
+            }}
+          >
+            Complete
+          </Button>
             </View>
+
+            <View style={styles.dwell_button}>
+                 
+                 <Button
+                 mode="contained"
+                 uppercase={false}
+                 
+                 style={{
+                   backgroundColor: Colors.orange,
+                   borderBottomLeftRadius: 0,
+                   borderBottomRightRadius: 10,
+                   borderTopLeftRadius: 0,
+                   borderTopRightRadius: 0,
+                 }}
+                 labelStyle={{
+                   color: Colors.white,
+                   fontSize: 20,
+                 }}
+               >
+                 Dwell
+               </Button>
+                 </View>
+
+
+            </View>
+
+           
+
           </Modal> 
       );
 
@@ -450,8 +495,9 @@ export default function HomeScreen({ navigation }) {
       return (
   
         <View style={styles.container}>
-    
 
+          
+        
           
           {/* <Button title="Sign Out" onPress={handleSignOut} /> */}
          
@@ -467,7 +513,7 @@ export default function HomeScreen({ navigation }) {
         
           <ActionButton
             size={70}
-            buttonColor="rgb(60, 179, 113)"
+            buttonColor={Colors.green}
             onPress={() => { navigation.navigate('Create Reminder')}}
           />
         </View>
@@ -502,10 +548,10 @@ const styles = StyleSheet.create({
   },
   modal: {
     flex: 0.7,
-    backgroundColor: 'white',    
+    backgroundColor: Colors.white,    
     //padding: 10,
     borderRadius:10,
-    alignItems: 'flex-start',
+    //alignItems: 'flex-start',
  },
  modal_heading_text:{
    fontSize:30,
@@ -514,6 +560,18 @@ const styles = StyleSheet.create({
  },
  reminder_style:{
    padding: 10
+ },
+ complete_button:{
+  position: 'absolute',
+  bottom: 0,
+  width: Dimensions.get('window').width * 0.45,
+  left:0,
+ },
+ dwell_button:{
+  position: 'absolute',
+  bottom: 0,
+  width: Dimensions.get('window').width * 0.45,
+  right:0,
  }
 
 });
