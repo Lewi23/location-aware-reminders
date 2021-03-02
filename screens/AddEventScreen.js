@@ -1,13 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, FlatList, Text, TouchableOpacity, SafeAreaView, View} from 'react-native';
-import RNPickerSelect from 'react-native-picker-select';
+import { StyleSheet, Text, View} from 'react-native';
 import { firebase_db } from '../components/Firebase/firebase'
 import { auth } from '../components/Firebase/firebase'
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import * as Yup from 'yup';
-
-
 
 import Colors from '../utils/colors';
 import SafeView from '../components/SafeView';
@@ -21,10 +16,6 @@ import useStatusBar from '../hooks/useStatusBar';
 import { Chip, Subheading, Button } from 'react-native-paper';
 import colors from '../utils/colors';
 
-
-
-
-
 // Build Chips
 const ontology_buttons = [
   '🛒 Food Shopping',
@@ -35,7 +26,7 @@ const ontology_buttons = [
   '🏃 Gym',
   '🍕 Takeaway',
   '💊 Pharmacy', 
-  '🛍 Clothes'
+  '🛍 Clothes shop'
 ]
 
 // Assign the ontology value to the chips
@@ -44,7 +35,6 @@ const ontology_types = [
   'Nature',
   'Postboxes',
 ]
-
 
 const validationSchema = Yup.object().shape({
   reminder: Yup.string()
@@ -55,7 +45,9 @@ const validationSchema = Yup.object().shape({
 export default function AddEventScreen({ navigation: { goBack } }) {
   useStatusBar('light-content');
 
-  
+  const [customError, setCustomError] = useState('');
+  const [ curIsSelected, setCurIsSelected ] = useState(0);
+
 
   async function addReminder(values){
 
@@ -68,8 +60,6 @@ export default function AddEventScreen({ navigation: { goBack } }) {
     goBack();
   }
 
-  const [customError, setCustomError] = useState('');
-  const [ curIsSelected, setCurIsSelected ] = useState(0);
 
 
 
@@ -122,7 +112,7 @@ export default function AddEventScreen({ navigation: { goBack } }) {
 
 
        
-        <FormButton title="Add reminder" />
+        <FormButton/>
 
 
         <View style={styles.button_holder}>
@@ -134,12 +124,12 @@ export default function AddEventScreen({ navigation: { goBack } }) {
         <Button 
          mode="contained"
          uppercase={false} 
-         onPress={() => console.log('Pressed')}
+         onPress={goBack}
          style={{
-           backgroundColor: "#ff3b30"
+           backgroundColor: Colors.red
          }}
          labelStyle={{
-           color:"white",
+           color:Colors.white,
            fontSize: 20
         }}
         >
@@ -161,50 +151,28 @@ const styles = StyleSheet.create({
     padding: 15,
     backgroundColor: Colors.white
   },
-  backButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 10
-  },
-  picker_style: {
-    width: 200,
-    backgroundColor: 'black',
-    borderColor: 'black',
-    borderWidth: 1,
-    fontSize: 30,
-  },
-  item: {
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
-  },
   row: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    //paddingHorizontal: 10,
     paddingVertical: 10
   },
   chip_not_selected: {
     backgroundColor: Colors.lightGrey,
-    color: "black",
     margin: 4
   },
   chip_selected: {
     backgroundColor: Colors.green,
-    color: "white",
     margin: 4
   },
   chip_text_not_selected: {
-    color: "black",
+    color: Colors.black,
     fontSize: 16
   },
   chip_text_selected: {
-    color: "white",
+    color: Colors.white,
     fontSize: 16
   },
   button_holder:{
     marginVertical: 10,
-    
-  
   }
 });
