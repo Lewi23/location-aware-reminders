@@ -3,19 +3,16 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
-
 import { auth } from '../components/Firebase/firebase';
 import { AuthUserContext } from './AuthUserProvider';
 import Spinner from '../components/Spinner';
 
-import navigationTheme from './navigationTheme';
-
-// Auth screens
+// Post-auth screens
 import AddEventScreen from '../screens/AddEventScreen';
 import completedRemindersScreen from '../screens/CompletedReminders';
 import HomeScreen from '../screens/HomeScreen';
 
-// Pre auth screens
+// Pre-auth screens
 import WelcomeScreen from '../screens/WelcomeScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import LoginScreen from '../screens/LoginScreen';
@@ -24,8 +21,6 @@ import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 // Build navigators
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
-
-
 
 export default function Routes() {
   const { user, setUser } = useContext(AuthUserContext);
@@ -54,10 +49,17 @@ export default function Routes() {
   if (user){
       return(
         <NavigationContainer>
-          <Stack.Navigator>
-              <Stack.Screen name="Tabs" component={TabNavigation}/> 
-              <Stack.Screen name="Reminders" component={HomeScreen} />
-              <Stack.Screen name="AddEvent" component={AddEventScreen} />
+          <Stack.Navigator
+            screenOptions={{
+              headerTitleStyle: {
+                fontWeight: 'bold',
+                fontSize: 32,
+              },
+              headerTitleAlign: "left",
+            }}
+          >
+              <Stack.Screen name="Reminders" component={ TabNavigation } />
+              <Stack.Screen name="Create Reminder" component={AddEventScreen} options={{headerLeft: () => null}}/>
           </Stack.Navigator>
         </NavigationContainer>
       );
@@ -78,9 +80,23 @@ export default function Routes() {
 // Tab navigation config
 const TabNavigation = () => {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Reminders" component={HomeScreen} />
-      <Tab.Screen name="completedReminders" component={completedRemindersScreen}/>
+    <Tab.Navigator
+    tabBarOptions={{
+      labelStyle: {
+        fontSize: 16,
+        fontWeight: "bold",
+        position: 'absolute',
+      },
+          //activeTintColor: 'tomato',
+          // inactiveTintColor: 'grey',
+          // inactiveBackgroundColor: 'grey',
+          // activeBackgroundColor: 'grey',
+        }}>
+
+
+
+      <Tab.Screen name="Active" component={HomeScreen} />
+      <Tab.Screen name="Completed" component={completedRemindersScreen}/>
     </Tab.Navigator>
   )
 }
