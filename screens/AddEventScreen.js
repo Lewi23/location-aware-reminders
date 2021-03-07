@@ -97,7 +97,7 @@ export default function AddEventScreen({ navigation: { goBack } }) {
           ))}
         </View>
 
-        <FormButton />
+        <FormButton title={"Add Reminder"}/>
 
         <View style={styles.button_holder}>
           {<FormErrorMessage error={customError} visible={true} />}
