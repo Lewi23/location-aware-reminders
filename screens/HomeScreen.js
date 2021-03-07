@@ -7,7 +7,7 @@ import Modal from 'react-native-modal';
 import MapView, {Marker} from 'react-native-maps';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
 
-import reminderSound from "../components/reminderSound";
+import ReminderSound from "../components/ReminderSound";
 import ListItem from "../components/ListItem";
 
 var _ = require('underscore');
@@ -121,7 +121,7 @@ export default function HomeScreen({ navigation }) {
           if(mapMarkers.markers.length > 0){
             setModalVisible(true);
             //Vibration.vibrate(2000);
-            //reminderSound();
+            //ReminderSound();
           //   clearInterval(interVal);
           }
       
