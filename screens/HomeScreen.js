@@ -1,15 +1,20 @@
-import React, { useState, useEffect, useRef, PureComponent  } from 'react';
-import { View, StyleSheet, FlatList, Text, TouchableOpacity, TouchableHighlight, Dimensions, LogBox } from 'react-native';
+import React, { useState, useEffect, useRef, PureComponent, useCallback } from 'react';
+import { View, StyleSheet, FlatList, Text, TouchableOpacity, Vibration, Dimensions, LogBox } from 'react-native';
 import * as Location from 'expo-location';
 import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal';
 import MapView, {Marker} from 'react-native-maps';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
+
+import reminderSound from "../components/reminderSound";
+import ListItem from "../components/ListItem";
+
 var _ = require('underscore');
 
+// import RangeSlider from 'rn-range-slider';
 
-import Slider from '@material-ui/core/Slider';
+// import Slider from '@react-native-community/slider';
 import Typography from '@material-ui/core/Typography';
 
 
@@ -29,47 +34,16 @@ LogBox.ignoreLogs(['Setting a timer']);
 LogBox.ignoreLogs(['Warning: componentWillReceiveProps has been renamed'])
 
 
-// const Item = ({ item, onPress, style }) => (
 
 
-//     <TouchableOpacity onPress={onPress} style={[styles.item, style]}>
-//       <Text style={styles.title}>{item.reminder + "\n" + item.completed}</Text>
-//     </TouchableOpacity>
-  
-  
-// );
 
-
-function Item({ item, onPress, style }){
-
-    let title;
-
-    switch(item.location){
-      case 'Food, Drink and Multi Item Retail':
-        title = '🛒  '
-        break;
-      case 'Nature':
-        title = '🌳  '
-        break;
-    }
-
-
-    return(
-      <TouchableOpacity onPress={onPress} style={[styles.item, style]}>
-        <Text style={styles.item_title}>{title}</Text>
-        <Text>{'\n' + item.reminder}</Text>
-        {/* <Text style={styles.title}>{item.reminder + "\n" + item.completed}</Text> */}
-      </TouchableOpacity>
-    );
-  
-}
 
 
 
 export default function HomeScreen({ navigation }) {
 
   
-
+ 
 
 
 
@@ -101,7 +75,7 @@ export default function HomeScreen({ navigation }) {
   const renderItem = ({ item }) => {
     const backgroundColor = item.id === selectedId ? "white" : "white";
     return (
-      <Item
+      <ListItem
         item={item}
         onPress={() => setSelectedId(item.id)}
         style={{ backgroundColor }}
@@ -146,6 +120,8 @@ export default function HomeScreen({ navigation }) {
 
           if(mapMarkers.markers.length > 0){
             setModalVisible(true);
+            //Vibration.vibrate(2000);
+            //reminderSound();
           //   clearInterval(interVal);
           }
       
@@ -485,7 +461,7 @@ export default function HomeScreen({ navigation }) {
 
           </Modal> 
       );
-
+                 
      
   } 
 
@@ -493,12 +469,28 @@ export default function HomeScreen({ navigation }) {
   
 
       return (
-  
+ 
+
         <View style={styles.container}>
 
-          
         
-          
+{/* <Slider
+    minimumValue={0}
+    maximumValue={1}
+    minimumTrackTintColor="#FFFFFF"
+    maximumTrackTintColor="#000000"
+  /> */}
+{/*   
+  <RangeSlider
+    min={200}
+    max={1000}
+    step={20}
+  /> */}
+
+    {/* <form>
+      <Slider marks />
+    </form>
+           */}
           {/* <Button title="Sign Out" onPress={handleSignOut} /> */}
          
     
@@ -529,7 +521,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   item_title: {
-    fontSize:60,
+    fontSize:40,
   },
   item: {
     backgroundColor: 'black',
