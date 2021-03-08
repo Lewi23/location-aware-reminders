@@ -91,7 +91,7 @@ const TabNavigation = () => {
     <Tab.Navigator
       tabBarOptions={{
         labelStyle: {
-          fontSize: 20,
+          fontSize: 18,
           fontWeight: "bold",
           position: "absolute",
         },
