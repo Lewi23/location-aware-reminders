@@ -8,8 +8,8 @@ async function load_data() {
     return file_data;
 }
 
-test('Walking directly infront of asda', async () => {
-  jest.setTimeout(30000);
+test('Walking directly in front of Asda (Food, Drink and Multi Item Retail reminder)', async () => {
+  jest.setTimeout(60000);
 
   let data = await load_data();
   var json = parser.xml2json(data);
@@ -32,7 +32,34 @@ test('Walking directly infront of asda', async () => {
         );
       }
     } catch (error) {
-      console.log("no nearby POIs");
+      
+    }
+  }
+});
+
+
+test('Walking near a similar type of shop (Food, Drink and Multi Item Retail reminder)', async () => {
+  jest.setTimeout(60000);
+
+  let data = await load_data();
+  var json = parser.xml2json(data);
+  var coord_array = json.gpx.trk.trkseg.trkpt;
+
+  
+  for (const coordPair of coord_array){
+    let result = await fetch('https://0186u6yf60.execute-api.eu-west-2.amazonaws.com/v1/check_location?lon=' + coordPair.lon + '&lat=' + coordPair.lat);
+    let POIs = await result.json();
+
+    try {
+      if(POIs.body.flat().includes('Food, Drink and Multi Item Retail')){
+        expect(POIs.body).toEqual(
+          expect.arrayContaining([
+            "Retail", 
+            "Food, Drink and Multi Item Retail"]),
+        );
+      }
+    } catch (error) {
+      
     }
   }
 });
