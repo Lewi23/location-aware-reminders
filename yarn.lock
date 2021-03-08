@@ -2754,6 +2754,11 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/picker/-/picker-1.8.1.tgz#94f14f0aad98fa7592967b941be97deec95c3805"
   integrity sha512-Sj9DzX1CSnmYiuEQ5fQhExoo4XjSKoZkqLPAAybycq6RHtCuWppf+eJXRMCOJki25BlKSSt+qVqg0fIe//ujNQ==
 
+"@react-native-community/slider@^3.0.3":
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/@react-native-community/slider/-/slider-3.0.3.tgz#830167fd757ba70ac638747ba3169b2dbae60330"
+  integrity sha512-8IeHfDwJ9/CTUwFs6x90VlobV3BfuPgNLjTgC6dRZovfCWigaZwVNIFFJnHBakK3pW2xErAPwhdvNR4JeNoYbw==
+
 "@react-native-picker/picker@1.9.2":
   version "1.9.2"
   resolved "https://registry.yarnpkg.com/@react-native-picker/picker/-/picker-1.9.2.tgz#c5e35f97d7982d2971ee3d74b1ba8ecf4b716627"
@@ -6474,6 +6479,14 @@ expo-asset@~8.2.1:
     md5-file "^3.2.3"
     path-browserify "^1.0.0"
     url-parse "^1.4.4"
+
+expo-av@~8.7.0:
+  version "8.7.0"
+  resolved "https://registry.yarnpkg.com/expo-av/-/expo-av-8.7.0.tgz#01030256dc75cebd5d02060393ba0ad36c10a7f8"
+  integrity sha512-tYw0z//UZm9THicOsu4w0A7Olq/JauTy7kcBR15Fhyppd9wd8Jtq7QYNtf2igd1R+byS2L0AGwE0nazlbQR+Qw==
+  dependencies:
+    lodash "^4.17.15"
+    nullthrows "^1.1.0"
 
 expo-background-fetch@~8.6.0:
   version "8.6.0"
@@ -13433,6 +13446,11 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
   dependencies:
     hash-base "^3.0.0"
     inherits "^2.0.1"
+
+rn-range-slider@^2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/rn-range-slider/-/rn-range-slider-2.0.4.tgz#850630d603bf364fe98d5e79ce1c220bde6a9d21"
+  integrity sha512-DSuD/iJrJcXjDrEmadTX1rWyM4efkDgyjh2lb2vNtJvHbcQ9UVJ6bvabc9F45b5YquM60f4Y8GWzjYq8SLtZlQ==
 
 router-ips@^1.0.0:
   version "1.0.0"
