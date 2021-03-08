@@ -64,13 +64,4 @@ const styles = StyleSheet.create({
   container: {
     flex: 1
   },
-  item: {
-    backgroundColor: 'black',
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    fontSize: 20,
-    color: 'white'
-  },
-
 });
