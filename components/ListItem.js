@@ -12,7 +12,33 @@ export default function ListItem({ item, onPress, style }) {
     case "Nature":
       title = "🌳  ";
       break;
+    case "Postboxes":
+      title = "📮  ";
+      break;
+    case "DIY and home improvement":
+    title = "⛏  ";
+    break;
+    case "Banks and building societies":
+      title = "💷  ";
+      break;
+    case "Gymnasiums, sports halls and leisure centres":
+      title = "🏃  ";
+      break;
+    case "Fast food and takeaway outlets":
+      title = "🍕  ";
+      break;
+    case "Chemists and pharmacies":
+      title = "💊  ";
+      break;
+    case "Clothing":
+      title = "🛍  ";
+      break;
+
   }
+
+
+
+
 
   if (!item.completed) {
     return (
@@ -47,7 +73,6 @@ const styles = StyleSheet.create({
     color: colors.white,
   },
   item: {
-    backgroundColor: "black",
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 16,

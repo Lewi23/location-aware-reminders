@@ -33,6 +33,12 @@ const ontology_types = [
   "Food, Drink and Multi Item Retail",
   "Nature",
   "Postboxes",
+  "DIY and home improvement",
+  "Banks and building societies",
+  "Gymnasiums, sports halls and leisure centres",
+  "Fast food and takeaway outlets",
+  "Chemists and pharmacies",
+  "Clothing"
 ];
 
 const validationSchema = Yup.object().shape({
