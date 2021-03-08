@@ -16,8 +16,8 @@ export default function ListItem({ item, onPress, style }) {
       title = "📮  ";
       break;
     case "DIY and home improvement":
-    title = "⛏  ";
-    break;
+      title = "⛏  ";
+      break;
     case "Banks and building societies":
       title = "💷  ";
       break;
@@ -33,12 +33,7 @@ export default function ListItem({ item, onPress, style }) {
     case "Clothing":
       title = "🛍  ";
       break;
-
   }
-
-
-
-
 
   if (!item.completed) {
     return (
