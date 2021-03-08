@@ -1,19 +1,28 @@
 import React, { useState, useEffect  } from 'react';
 import { View, StyleSheet, Button, FlatList, Text } from 'react-native';
-import * as Location from 'expo-location';
-
-import AppButton from '../components/AppButton';
 import useStatusBar from '../hooks/useStatusBar';
-import { logout } from '../components/Firebase/firebase';
+
+import ListItem from "../components/ListItem";
 import { firebase_db } from '../components/Firebase/firebase'
 import { auth } from '../components/Firebase/firebase'
 import colors from '../utils/colors';
 
 
-export default function HomeScreen({ navigation }) {
+export default function CompletedReminders() {
   useStatusBar('light-content');
 
   const [ completedReminders, setCompletedReminders] = useState();
+
+
+  const renderItem = ({ item }) => {
+    return (
+      <ListItem
+        item={item}
+        style={{ backgroundColor: colors.green }}
+      />
+    );
+  };
+
 
   // Populates the reminders state
   useEffect(() => {
@@ -40,19 +49,13 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
 
-      <FlatList
+          <FlatList
             data={completedReminders}
-            renderItem={({ item }) => {
-              return <Text style={styles.item}>{item.reminder + "\n" + item.location + "\n" + item.completed}</Text>;
-            }}
+            renderItem={renderItem}
             keyExtractor={item => item.id}
-      />
+            //extraData={selectedId}
+          />  
 
-          
-        {/* <View style={{flexDirection: "row"}}> */}
-              {/* <Button title="Current Reminders" style={styles.button} />
-              <Button title="Completed" color="#f194ff"  /> */}
-        {/* </View> */}
     </View>
   );
 }
