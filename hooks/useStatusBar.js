@@ -3,9 +3,9 @@ import { StatusBar } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function useStatusBar(style, animated = true) {
-  //useFocusEffect(
+  useFocusEffect(
     useCallback(() => {
-      StatusBar.setBarStyle(style, animated);
+      StatusBar.setBarStyle('dark-content', animated);
     }, [])
-  //);
+  );
 }
