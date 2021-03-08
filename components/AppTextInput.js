@@ -43,7 +43,7 @@ export default function AppTextInput({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.lightGrey,
-    //borderRadius: 25,
+    borderRadius: 25,
     flexDirection: 'row',
     padding: 15,
     marginVertical: 10
