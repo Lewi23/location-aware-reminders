@@ -2,51 +2,27 @@ import React, { useState, useEffect, useRef, PureComponent, useCallback } from '
 import { View, StyleSheet, FlatList, Text, TouchableOpacity, Vibration, Dimensions, LogBox } from 'react-native';
 import * as Location from 'expo-location';
 import ActionButton from 'react-native-action-button';
-import Icon from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal';
 import MapView, {Marker} from 'react-native-maps';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
-
 import ReminderSound from "../components/ReminderSound";
 import ListItem from "../components/ListItem";
-
 var _ = require('underscore');
 
-// import RangeSlider from 'rn-range-slider';
-
-// import Slider from '@react-native-community/slider';
-import Typography from '@material-ui/core/Typography';
-
-
-import Spinner from '../components/Spinner';
-import AppButton from '../components/AppButton';
 import useStatusBar from '../hooks/useStatusBar';
 import { logout } from '../components/Firebase/firebase';
 import { firebase_db } from '../components/Firebase/firebase'
 import { auth } from '../components/Firebase/firebase'
 import Colors from '../utils/colors';
-
-
 import { Button } from "react-native-paper";
 
+import { Chip, Subheading} from "react-native-paper";
 
 LogBox.ignoreLogs(['Setting a timer']);
 LogBox.ignoreLogs(['Warning: componentWillReceiveProps has been renamed'])
 
 
-
-
-
-
-
-
 export default function HomeScreen({ navigation }) {
-
-  
- 
-
-
-
   useStatusBar('light-content');
 
   // Reminders a user has created 
@@ -58,18 +34,16 @@ export default function HomeScreen({ navigation }) {
   const [ curLat, setCurLat ] = useState();
   const [ remindersToDisplay, setRemindersToDisplay ] = useState();
 
-  
-
-  
-  const [ selectedId, setSelectedId ] = useState(null);
-  
+  const [ selectedId, setSelectedId ] = useState(null);  
   const [ markersArray, setMarkersArray ] = useState();
   const [ completed, setCompleted ] = useState();
   const [ modalVisible, setModalVisible ] = useState(true);
   const [ reminderType , setReminderType ] = useState();
   const [ loop, setLoop] = useState(true);
 
-  //console.log(selectedId);
+  const [chipCurIsSelected, setChipCurIsSelected] = useState(1);
+
+ 
 
   // Render flat list items
   const renderItem = ({ item }) => {
@@ -105,7 +79,7 @@ export default function HomeScreen({ navigation }) {
           setCurLon(location["coords"]['longitude']);
           setCurLat(location["coords"]['latitude']);
         
-          let result = await fetch('https://0186u6yf60.execute-api.eu-west-2.amazonaws.com/v1/check_location?lon=' + location["coords"]['longitude'] + '&lat=' + location["coords"]['latitude']);
+          let result = await fetch('https://0186u6yf60.execute-api.eu-west-2.amazonaws.com/v1/check_location?lon=' + location["coords"]['longitude'] + '&lat=' + location["coords"]['latitude'] + '&search_range=' + search_distance_values[chipCurIsSelected]);
           let POIs = await result.json();
 
           let reminderTypes = await getReminderTypes();
@@ -465,7 +439,18 @@ export default function HomeScreen({ navigation }) {
      
   } 
 
+  const search_distance_buttons = [
+    "  Close  ",
+    " Standard ",
+    "     Far     ",
 
+  ];
+
+  const search_distance_values = [
+    100,
+    250,
+    1000
+  ]
   
 
       return (
@@ -473,24 +458,33 @@ export default function HomeScreen({ navigation }) {
 
         <View style={styles.container}>
 
-        
-{/* <Slider
-    minimumValue={0}
-    maximumValue={1}
-    minimumTrackTintColor="#FFFFFF"
-    maximumTrackTintColor="#000000"
-  /> */}
-{/*   
-  <RangeSlider
-    min={200}
-    max={1000}
-    step={20}
-  /> */}
 
-    {/* <form>
-      <Slider marks />
-    </form>
-           */}
+
+      <Subheading style={styles.heading}>Search Distance:</Subheading>
+
+<View style={styles.row}>
+{search_distance_buttons.map((reminder_type, index) => (
+            <Chip
+              id={index}
+              style={
+                chipCurIsSelected === index
+                  ? styles.chip_selected
+                  : styles.chip_not_selected
+              }
+              onPress={() => setChipCurIsSelected(index)}
+            >
+              <Text
+                style={
+                  chipCurIsSelected === index
+                    ? styles.chip_text_selected
+                    : styles.chip_text_not_selected
+                }
+              >
+                {reminder_type}
+              </Text>
+            </Chip>
+          ))}
+</View>
           {/* <Button title="Sign Out" onPress={handleSignOut} /> */}
          
     
@@ -519,19 +513,6 @@ const styles = StyleSheet.create({
   },
   button_container:{
     flex: 1
-  },
-  item_title: {
-    fontSize:40,
-  },
-  item: {
-    backgroundColor: 'black',
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    fontSize: 20,
-    color: 'white',
-    borderRadius:10,
-    borderColor: "blue"
   },
   map: {
     width: Dimensions.get('window').width * 0.9,
@@ -564,6 +545,34 @@ const styles = StyleSheet.create({
   bottom: 0,
   width: Dimensions.get('window').width * 0.45,
   right:0,
- }
+ },
+ row: {
+  flexDirection: "row",
+  flexWrap: "wrap",
+  paddingVertical: 2,
+  padding:10
+},
+chip_not_selected: {
+  backgroundColor: Colors.lightGrey,
+  margin: 4,
+},
+chip_selected: {
+  backgroundColor: Colors.green,
+  margin: 4,
+},
+chip_text_not_selected: {
+  color: Colors.black,
+  fontSize: 20,
+},
+chip_text_selected: {
+  color: Colors.white,
+  fontSize: 20,
+},
+heading:{
+  margin:18,
+  fontSize:16
+},
+
+
 
 });
