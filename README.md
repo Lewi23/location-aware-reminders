@@ -3,5 +3,5 @@
 Some screen shots in the mean time
 
 
-<img src="assets/readme_images/homescreen.png"  />
-<img src="assets/readme_images/other_screens.png"  />
+<img src="assets/readme_images/homescreen.PNG"  />
+<img src="assets/readme_images/other_screens.PNG"  />
