@@ -31,7 +31,10 @@ exports.handler = async (event) => {
                   JOIN poi_building_lookup ON osmm_buildings.id=poi_building_lookup.buildingid\
                   JOIN poi_table ON poi_building_lookup.poiid=poi_table.id\
                WHERE \
-                  ST_DWithin(osmm_buildings.geom, ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT (' + lon + ',' +  lat + '),4326),27700), ' + search_range + ');'
+                  ST_DWithin(osmm_buildings.geom, ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT (' + lon + ',' +  lat + '),4326),27700), ' + search_range + ') 
+                  OR
+                  ST_DWithin(poi_table.geom, ST_TRANSFORM(ST_SETSRID(ST_MAKEPOINT (' + lon + ',' +  lat + '),4326),27700), ' + search_range + ')
+                  '
     })
     
     
