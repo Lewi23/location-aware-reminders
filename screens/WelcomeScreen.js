@@ -10,10 +10,9 @@ export default function WelcomeScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-     <Text style={styles.subtitle}>app name</Text>
-      <View style={styles.logoContainer}>
-       
-      </View>
+     <Text style={styles.subtitle}>Location-aware</Text>
+     <Text style={styles.subtitle}>Reminders</Text>
+      <Text style={styles.logoContainer}>🗺</Text>
       <View style={styles.buttonContainer}>
         <AppButton title="Login" color="black" onPress={() => navigation.navigate('Login')} />
         <AppButton title="Register" color="black" onPress={() => navigation.navigate('Register')}/>
@@ -34,16 +33,18 @@ const styles = StyleSheet.create({
     //position: 'absolute',
     //top: 60,
     //alignItems: 'center',
-    justifyContent: 'center'
+    //justifyContent: 'center',
+    fontSize:150
   },
   logo: {
     width: 125,
     height: 125
   },
   subtitle: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: '600',
-    paddingVertical: 20,
+    //paddingVertical: 20,
+    paddingHorizontal: 20,
     color: Colors.black
   },
   buttonContainer: {
