@@ -10,8 +10,13 @@ const navigationTheme = {
     primary: Colors.primary,
     text: Colors.black,
     border: Colors.mediumGrey,
-    background: Colors.ghostWhite
-  }
+    background: Colors.ghostWhite,
+    card: Colors.white
+    
+  },
+
+  
+
 };
 
 export default navigationTheme;
