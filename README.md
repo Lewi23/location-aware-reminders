@@ -8,7 +8,11 @@ A reminder application that uses generic location types to trigger reminders.
 
 Two different spatial techniques were used to determine how close a user is to a potential point of interest: the Euclidean and Network distance.
 
-<img src="Assets/readme_images/CompareSpatialTechniques.PNG" width=100%/>
+<p align="center">
+ <img src="Assets/readme_images/CompareSpatialTechniques.PNG" width=75%/>
+</p>
+
+
 
 ## The result
 
